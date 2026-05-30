@@ -1,0 +1,63 @@
+import { getTranslations } from 'next-intl/server';
+import { getSettings, settingValue } from '@/lib/data';
+import ContactForm from '@/components/ContactForm';
+
+export const dynamic = 'force-dynamic';
+
+export default async function ContactPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
+  const t = await getTranslations('contact');
+  const settings = await getSettings();
+
+  const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
+  const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
+  const zone = settingValue(settings, 'zone', locale, 'Morbier / Jura');
+
+  const info = [
+    { label: t('phone'), value: phone, href: `tel:${phone.replace(/\s/g, '')}`, icon: 'M3 5a2 2 0 012-2h2l2 5-2 1a11 11 0 005 5l1-2 5 2v2a2 2 0 01-2 2A16 16 0 013 5z' },
+    { label: t('email'), value: email, href: `mailto:${email}`, icon: 'M3 7l9 6 9-6M3 7v10a1 1 0 001 1h16a1 1 0 001-1V7M3 7l9 6' },
+    { label: t('zone'), value: zone, href: null, icon: 'M12 21s-6-5.5-6-10a6 6 0 1112 0c0 4.5-6 10-6 10z' }
+  ];
+
+  return (
+    <div className="container-page py-14">
+      <header className="text-center">
+        <h1 className="section-title">{t('title')}</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
+      </header>
+
+      <div className="mt-12 grid gap-8 lg:grid-cols-5">
+        <div className="lg:col-span-2">
+          <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-ocean-600 p-6 text-white">
+            <h2 className="text-xl font-bold">{t('infoTitle')}</h2>
+            <ul className="mt-6 space-y-5">
+              {info.map((item) => (
+                <li key={item.label} className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d={item.icon} />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="text-sm text-white/80">{item.label}</p>
+                    {item.href ? (
+                      <a href={item.href} className="font-semibold hover:underline">
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="font-semibold">{item.value}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 lg:col-span-3">
+          <ContactForm />
+        </div>
+      </div>
+    </div>
+  );
+}

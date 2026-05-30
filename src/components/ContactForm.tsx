@@ -1,0 +1,74 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
+import { databases, appwriteConfig, ID } from '@/lib/appwrite';
+
+type Status = 'idle' | 'sending' | 'success' | 'error';
+
+export default function ContactForm() {
+  const t = useTranslations('contact');
+  const [status, setStatus] = useState<Status>('idle');
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    setStatus('sending');
+    try {
+      await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.messages,
+        ID.unique(),
+        {
+          name: String(data.get('name') ?? ''),
+          email: String(data.get('email') ?? ''),
+          phone: String(data.get('phone') ?? ''),
+          body: String(data.get('message') ?? ''),
+          is_read: false
+        }
+      );
+      setStatus('success');
+      form.reset();
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">{t('name')}</label>
+          <input name="name" required className="input-field" autoComplete="name" />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">{t('phone')}</label>
+          <input name="phone" type="tel" className="input-field" autoComplete="tel" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">{t('email')}</label>
+        <input name="email" type="email" required className="input-field" autoComplete="email" />
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">{t('message')}</label>
+        <textarea name="message" required rows={5} className="input-field resize-none" />
+      </div>
+
+      <button type="submit" disabled={status === 'sending'} className="btn-primary w-full disabled:opacity-60">
+        {status === 'sending' ? t('sending') : t('send')}
+      </button>
+
+      {status === 'success' && (
+        <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+          {t('success')}
+        </p>
+      )}
+      {status === 'error' && (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">{t('error')}</p>
+      )}
+    </form>
+  );
+}

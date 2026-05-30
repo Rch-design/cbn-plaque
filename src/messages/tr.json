@@ -1,0 +1,98 @@
+{
+  "site": {
+    "name": "CBN Plaque",
+    "tagline": "Jura bölgesinde alçı, boya ve dekorasyon"
+  },
+  "nav": {
+    "home": "Anasayfa",
+    "services": "Hizmetler",
+    "realisations": "Referanslar",
+    "contact": "İletişim",
+    "admin": "Yönetim",
+    "quote": "Teklif İste"
+  },
+  "home": {
+    "heroTitle": "Mekanlarınıza hayat verin",
+    "heroSubtitle": "Alçıpan montajı, alçı işleri, boya, dekorasyon ve izolasyon. Haut-Jura bölgesinde bireysel ve kurumsal müşteriler için özenli işçilik.",
+    "heroCta": "Ücretsiz teklif al",
+    "heroSecondary": "Çalışmalarımızı gör",
+    "servicesTitle": "Hizmetlerimiz",
+    "servicesSubtitle": "Montajdan son rötuşlara kadar eksiksiz hizmet.",
+    "featuredTitle": "Son çalışmalar",
+    "featuredSubtitle": "Gurur duyduğumuz bazı projeler.",
+    "viewAll": "Tüm çalışmaları gör",
+    "whyTitle": "Neden biz",
+    "why": {
+      "quality": "Kaliteli işçilik",
+      "qualityText": "Kusursuz bitişler ve dayanıklı malzemeler.",
+      "local": "Yerel usta",
+      "localText": "Haut-Jura bölgesinde, her zaman yanınızda.",
+      "free": "Ücretsiz teklif",
+      "freeText": "Net ve bağlayıcı olmayan fiyat tahmini."
+    },
+    "ctaTitle": "Aklınızda bir proje mi var?",
+    "ctaText": "Konuşalım. Hızlı yanıt ve ücretsiz teklif.",
+    "ctaButton": "Bana ulaşın"
+  },
+  "services": {
+    "title": "Hizmetlerimiz",
+    "subtitle": "Duvar, tavan ve çatı katı için ihtiyacınız olan her şey.",
+    "empty": "Henüz hizmet eklenmedi."
+  },
+  "realisations": {
+    "title": "Çalışmalarımız",
+    "subtitle": "Projelerimizi kategoriye göre keşfedin.",
+    "all": "Tümü",
+    "categories": {
+      "mur": "Duvar",
+      "plafond": "Tavan",
+      "comble": "Çatı katı"
+    },
+    "empty": "Bu kategoride henüz çalışma yok.",
+    "back": "Çalışmalara dön",
+    "noImages": "Fotoğraf bulunmuyor."
+  },
+  "contact": {
+    "title": "Bize ulaşın",
+    "subtitle": "Sorunuz mu var, teklif mi istiyorsunuz? Yazın, hızlıca dönüş yapıyoruz.",
+    "name": "Ad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "message": "Mesajınız",
+    "send": "Mesajı gönder",
+    "sending": "Gönderiliyor...",
+    "success": "Teşekkürler! Mesajınız başarıyla gönderildi.",
+    "error": "Bir hata oluştu. Tekrar deneyin veya bizi arayın.",
+    "infoTitle": "İletişim bilgileri",
+    "zone": "Hizmet bölgesi"
+  },
+  "footer": {
+    "rights": "Tüm hakları saklıdır.",
+    "madeWith": "Jura bölgesinde alçı, boya ve dekorasyon."
+  },
+  "admin": {
+    "loginTitle": "Yönetim paneli",
+    "email": "E-posta",
+    "password": "Şifre",
+    "login": "Giriş yap",
+    "logout": "Çıkış yap",
+    "loginError": "E-posta veya şifre hatalı.",
+    "dashboard": "Kontrol paneli",
+    "tabs": {
+      "services": "Hizmetler",
+      "projects": "Referanslar",
+      "messages": "Mesajlar",
+      "settings": "Ayarlar"
+    },
+    "common": {
+      "add": "Ekle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "saving": "Kaydediliyor...",
+      "confirmDelete": "Silmeyi onaylıyor musunuz?",
+      "loading": "Yükleniyor..."
+    }
+  }
+}
