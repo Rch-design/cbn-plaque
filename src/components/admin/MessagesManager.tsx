@@ -6,9 +6,19 @@ import type { MessageDoc } from '@/lib/types';
 
 const { databaseId, collections } = appwriteConfig;
 
-export default function MessagesManager() {
-  const [items, setItems] = useState<MessageDoc[]>([]);
+export default function MessagesManager({
+  onCountChange
+}: {
+  onCountChange?: (count: number) => void;
+}) {
+  const [items, setItems]   = useState<MessageDoc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter]   = useState<'all' | 'unread' | 'read'>('all');
+
+  function updateCount(list: MessageDoc[]) {
+    const n = list.filter((m) => !m.is_read).length;
+    onCountChange?.(n);
+  }
 
   async function load() {
     setLoading(true);
@@ -17,7 +27,9 @@ export default function MessagesManager() {
         Query.orderDesc('$createdAt'),
         Query.limit(100)
       ]);
-      setItems(res.documents as unknown as MessageDoc[]);
+      const docs = res.documents as unknown as MessageDoc[];
+      setItems(docs);
+      updateCount(docs);
     } catch {
       setItems([]);
     } finally {
@@ -25,16 +37,37 @@ export default function MessagesManager() {
     }
   }
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   async function toggleRead(msg: MessageDoc) {
     try {
       await databases.updateDocument(databaseId, collections.messages, msg.$id, {
         is_read: !msg.is_read
       });
-      setItems((list) => list.map((m) => (m.$id === msg.$id ? { ...m, is_read: !m.is_read } : m)));
+      setItems((list) => {
+        const updated = list.map((m) => m.$id === msg.$id ? { ...m, is_read: !m.is_read } : m);
+        updateCount(updated);
+        return updated;
+      });
+    } catch {
+      alert('Güncellenemedi.');
+    }
+  }
+
+  async function markAllRead() {
+    const unread = items.filter((m) => !m.is_read);
+    if (!unread.length) return;
+    try {
+      await Promise.all(
+        unread.map((m) =>
+          databases.updateDocument(databaseId, collections.messages, m.$id, { is_read: true })
+        )
+      );
+      setItems((list) => {
+        const updated = list.map((m) => ({ ...m, is_read: true }));
+        updateCount(updated);
+        return updated;
+      });
     } catch {
       alert('Güncellenemedi.');
     }
@@ -44,60 +77,144 @@ export default function MessagesManager() {
     if (!confirm('Bu mesajı silmek istiyor musunuz?')) return;
     try {
       await databases.deleteDocument(databaseId, collections.messages, id);
-      setItems((list) => list.filter((m) => m.$id !== id));
+      setItems((list) => {
+        const updated = list.filter((m) => m.$id !== id);
+        updateCount(updated);
+        return updated;
+      });
     } catch {
       alert('Silinemedi.');
     }
   }
 
-  if (loading) return <p className="text-gray-500">Yükleniyor...</p>;
+  if (loading) return <p className="py-8 text-center text-gray-500">Yükleniyor…</p>;
+
+  const unreadCount = items.filter((m) => !m.is_read).length;
+  const filtered = filter === 'unread'
+    ? items.filter((m) => !m.is_read)
+    : filter === 'read'
+      ? items.filter((m) => m.is_read)
+      : items;
 
   return (
-    <div>
-      <h2 className="mb-4 text-lg font-bold text-gray-900">
-        Mesajlar {items.length > 0 && <span className="text-sm font-normal text-gray-500">({items.length})</span>}
-      </h2>
+    <div className="space-y-5">
+      {/* Başlık */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">✉️ Mesajlar</h2>
+          <p className="text-sm text-gray-500">
+            {items.length} mesaj
+            {unreadCount > 0 && (
+              <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
+                {unreadCount} okunmamış
+              </span>
+            )}
+          </p>
+        </div>
+        {unreadCount > 0 && (
+          <button
+            onClick={markAllRead}
+            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            ✓ Tümünü okundu işaretle
+          </button>
+        )}
+      </div>
 
-      {items.length === 0 && <p className="text-gray-500">Henüz mesaj yok.</p>}
+      {/* Filtre */}
+      <div className="flex gap-2">
+        {([
+          { key: 'all',    label: `Tümü (${items.length})` },
+          { key: 'unread', label: `Okunmamış (${unreadCount})` },
+          { key: 'read',   label: `Okunmuş (${items.length - unreadCount})` }
+        ] as const).map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+              filter === f.key
+                ? f.key === 'unread' ? 'bg-red-500 text-white' : 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-gray-300 py-12 text-center text-gray-500">
+          <div className="text-4xl">📭</div>
+          <p className="mt-2 font-semibold">
+            {filter === 'unread' ? 'Okunmamış mesaj yok.' : 'Mesaj yok.'}
+          </p>
+        </div>
+      )}
 
       <div className="space-y-3">
-        {items.map((m) => (
+        {filtered.map((m) => (
           <div
             key={m.$id}
-            className={`rounded-xl p-4 shadow-sm ring-1 ${
-              m.is_read ? 'bg-white ring-gray-100' : 'bg-brand-50 ring-brand-200'
+            className={`rounded-2xl p-4 shadow-sm ring-1 transition ${
+              m.is_read
+                ? 'bg-white ring-gray-100'
+                : 'bg-orange-50 ring-orange-200'
             }`}
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p className="font-semibold text-gray-900">
-                  {m.name}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-bold text-gray-900">{m.name}</p>
                   {!m.is_read && (
-                    <span className="ml-2 rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                      YENİ
+                    <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wide">
+                      Yeni
                     </span>
                   )}
-                </p>
-                <p className="text-sm text-gray-500">
-                  <a href={`mailto:${m.email}`} className="hover:underline">{m.email}</a>
+                </div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                  <a href={`mailto:${m.email}`} className="hover:text-blue-600 hover:underline">
+                    📧 {m.email}
+                  </a>
                   {m.phone && (
-                    <>
-                      {' · '}
-                      <a href={`tel:${m.phone}`} className="hover:underline">{m.phone}</a>
-                    </>
+                    <a href={`tel:${m.phone}`} className="hover:text-blue-600 hover:underline">
+                      📞 {m.phone}
+                    </a>
                   )}
-                </p>
+                </div>
               </div>
-              <span className="text-xs text-gray-400">
-                {new Date(m.$createdAt).toLocaleString('fr-FR')}
+              <span className="text-xs text-gray-400 shrink-0">
+                {new Date(m.$createdAt).toLocaleString('fr-FR', {
+                  day: '2-digit', month: '2-digit', year: 'numeric',
+                  hour: '2-digit', minute: '2-digit'
+                })}
               </span>
             </div>
-            <p className="mt-3 whitespace-pre-wrap text-gray-700">{m.body}</p>
-            <div className="mt-3 flex gap-3">
-              <button onClick={() => toggleRead(m)} className="text-sm font-semibold text-ocean-600 hover:underline">
-                {m.is_read ? 'Okunmadı işaretle' : 'Okundu işaretle'}
+
+            <p className="mt-3 whitespace-pre-wrap rounded-xl bg-white/70 p-3 text-gray-700 text-sm leading-relaxed">
+              {m.body}
+            </p>
+
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                onClick={() => toggleRead(m)}
+                className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                  m.is_read
+                    ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
+              >
+                {m.is_read ? '↩ Okunmadı işaretle' : '✓ Okundu işaretle'}
               </button>
-              <button onClick={() => remove(m.$id)} className="text-sm font-semibold text-red-600 hover:underline">
+              <a
+                href={`mailto:${m.email}`}
+                className="flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+              >
+                ↗ Yanıtla
+              </a>
+              <button
+                onClick={() => remove(m.$id)}
+                className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50"
+              >
                 Sil
               </button>
             </div>
