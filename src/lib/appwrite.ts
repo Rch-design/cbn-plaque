@@ -7,6 +7,7 @@ export const appwriteConfig = {
   bucketId: process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID ?? 'project-images',
   collections: {
     services: process.env.NEXT_PUBLIC_APPWRITE_COL_SERVICES ?? 'services',
+    serviceImages: process.env.NEXT_PUBLIC_APPWRITE_COL_SERVICE_IMAGES ?? 'service_images',
     projects: process.env.NEXT_PUBLIC_APPWRITE_COL_PROJECTS ?? 'projects',
     projectImages: process.env.NEXT_PUBLIC_APPWRITE_COL_PROJECT_IMAGES ?? 'project_images',
     messages: process.env.NEXT_PUBLIC_APPWRITE_COL_MESSAGES ?? 'messages',

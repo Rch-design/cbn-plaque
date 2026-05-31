@@ -33,6 +33,13 @@ export interface ProjectImageDoc {
   sort_order: number;
 }
 
+export interface ServiceImageDoc {
+  $id: string;
+  service_id: string;
+  file_id: string;
+  sort_order: number;
+}
+
 export interface MessageDoc {
   $id: string;
   name: string;

@@ -1,9 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getServices } from '@/lib/data';
+import { fileViewUrl } from '@/lib/appwrite';
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
-import { fileViewUrl } from '@/lib/appwrite';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,6 @@ const DEFAULT_SERVICES = [
 export default async function ServicesPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
   const t = await getTranslations('services');
-  const tc = await getTranslations('home');
   const services = await getServices();
   const idx = locale === 'tr' ? 'tr' : 'fr';
 
@@ -29,11 +28,14 @@ export default async function ServicesPage({ params }: { params: { locale: strin
         <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
       </header>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
+      <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {services.length === 0
           ? DEFAULT_SERVICES.map((d) => (
               <article key={d.icon} className="flex gap-5 rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-ocean-500 text-white">
+                <div
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white"
+                  style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
+                >
                   <ServiceIcon name={d.icon} className="h-8 w-8" />
                 </div>
                 <div>
@@ -42,41 +44,69 @@ export default async function ServicesPage({ params }: { params: { locale: strin
                 </div>
               </article>
             ))
-          : services.map((s) => (
-              <article key={s.$id} className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
-                {s.image_file_id && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={fileViewUrl(s.image_file_id)}
-                    alt={localized(s as unknown as Record<string, unknown>, 'title', locale)}
-                    className="h-48 w-full object-cover"
-                  />
-                )}
-                <div className="flex gap-4 p-5">
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white"
-                    style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
-                  >
-                    <ServiceIcon name={s.icon} className="h-7 w-7" />
+          : services.map((s) => {
+              const title = localized(s as unknown as Record<string, unknown>, 'title', locale);
+              const desc  = localized(s as unknown as Record<string, unknown>, 'desc', locale);
+              return (
+                <Link
+                  key={s.$id}
+                  href={`/services/${s.$id}`}
+                  className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 transition hover:-translate-y-1 hover:shadow-xl"
+                >
+                  {/* Fotoğraf ya da ikon */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                    {s.image_file_id ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={fileViewUrl(s.image_file_id)}
+                        alt={title}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div
+                        className="flex h-full items-center justify-center text-white"
+                        style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
+                      >
+                        <ServiceIcon name={s.icon} className="h-16 w-16 opacity-60" />
+                      </div>
+                    )}
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/40 to-transparent opacity-0 transition group-hover:opacity-100">
+                      <span className="m-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold"
+                        style={{ color: 'var(--c-primary-dark, #ea580c)' }}>
+                        {t('discover')} →
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {localized(s as unknown as Record<string, unknown>, 'title', locale)}
-                    </h2>
-                    <p className="mt-1 text-gray-600">
-                      {localized(s as unknown as Record<string, unknown>, 'desc', locale)}
-                    </p>
+
+                  <div className="flex items-start gap-3 p-4">
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
+                      style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
+                    >
+                      <ServiceIcon name={s.icon} className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-gray-900">{title}</h2>
+                      {desc && <p className="mt-1 text-sm text-gray-500 line-clamp-2">{desc}</p>}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </Link>
+              );
+            })
+        }
       </div>
 
-      <div className="mt-12 rounded-3xl bg-gradient-to-r from-ocean-600 to-brand-600 px-8 py-10 text-center text-white">
-        <h2 className="text-2xl font-extrabold">{tc('ctaTitle')}</h2>
-        <p className="mt-2 text-white/90">{tc('ctaText')}</p>
-        <Link href="/contact" className="btn-primary mt-5 !bg-white !text-brand-700 hover:!bg-brand-50">
-          {tc('ctaButton')}
+      <div
+        className="mt-12 rounded-3xl px-8 py-10 text-center text-white shadow-xl"
+        style={{ background: 'linear-gradient(135deg, var(--c-secondary), var(--c-primary))' }}
+      >
+        <h2 className="text-2xl font-extrabold">{t('ctaTitle')}</h2>
+        <p className="mt-2 text-white/90">{t('ctaText')}</p>
+        <Link href="/contact"
+          className="mt-5 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold transition"
+          style={{ backgroundColor: 'white', color: 'var(--c-primary-dark, #ea580c)' }}>
+          {t('ctaButton')}
         </Link>
       </div>
     </div>

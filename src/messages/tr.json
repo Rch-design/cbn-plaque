@@ -37,7 +37,13 @@
   "services": {
     "title": "Hizmetlerimiz",
     "subtitle": "Duvar, tavan ve çatı katı için ihtiyacınız olan her şey.",
-    "empty": "Henüz hizmet eklenmedi."
+    "empty": "Henüz hizmet eklenmedi.",
+    "back": "Hizmetlere dön",
+    "noImages": "Fotoğraf bulunmuyor.",
+    "ctaTitle": "Aklınızda bir proje mi var?",
+    "ctaText": "Konuşalım. Hızlı yanıt ve ücretsiz teklif.",
+    "ctaButton": "Bana ulaşın",
+    "discover": "İncele"
   },
   "realisations": {
     "title": "Çalışmalarımız",

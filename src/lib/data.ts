@@ -1,6 +1,7 @@
 import { databases, appwriteConfig, Query } from './appwrite';
 import type {
   ServiceDoc,
+  ServiceImageDoc,
   ProjectDoc,
   ProjectImageDoc,
   SettingDoc
@@ -36,6 +37,30 @@ export async function getProjects(category?: string): Promise<ProjectDoc[]> {
     }
     const res = await databases.listDocuments(databaseId, collections.projects, queries);
     return res.documents as unknown as ProjectDoc[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getService(id: string): Promise<ServiceDoc | null> {
+  if (!isConfigured()) return null;
+  try {
+    const doc = await databases.getDocument(databaseId, collections.services, id);
+    return doc as unknown as ServiceDoc;
+  } catch {
+    return null;
+  }
+}
+
+export async function getServiceImages(serviceId: string): Promise<ServiceImageDoc[]> {
+  if (!isConfigured()) return [];
+  try {
+    const res = await databases.listDocuments(databaseId, collections.serviceImages, [
+      Query.equal('service_id', serviceId),
+      Query.orderAsc('sort_order'),
+      Query.limit(100)
+    ]);
+    return res.documents as unknown as ServiceImageDoc[];
   } catch {
     return [];
   }
