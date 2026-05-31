@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import ThemeStyle from '@/components/ThemeStyle';
 import Tracker from '@/components/Tracker';
 import AdBanner from '@/components/AdBanner';
+import GoogleAdSticky from '@/components/GoogleAdSticky';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
         <AdBanner pageSlug="all" />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} settings={settings} />
+        <GoogleAdSticky />
       </div>
     </NextIntlClientProvider>
   );

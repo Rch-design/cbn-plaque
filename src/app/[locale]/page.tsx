@@ -6,6 +6,7 @@ import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import ProjectCard from '@/components/ProjectCard';
 import { fileViewUrl } from '@/lib/appwrite';
+import GoogleAdBanner from '@/components/GoogleAdBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,6 +79,13 @@ export default async function HomePage({ params }: { params: { locale: string } 
           </div>
         </div>
       </section>
+
+      {/* AdSense - hizmetler üstü */}
+      <GoogleAdBanner
+        slot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_SLOT ?? ''}
+        format="horizontal"
+        className="mx-auto max-w-4xl py-4 px-4"
+      />
 
       {/* Services */}
       <section className="container-page py-16">
