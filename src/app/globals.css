@@ -2,17 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Varsayılan CSS değişkenleri (admin'den override edilebilir) ── */
 :root {
   --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Ana renk (butonlar, vurgular) */
+  --c-primary:      #f97316;
+  --c-primary-dark: #ea580c;
+  --c-primary-text: #ffffff;
+
+  /* İkincil renk */
+  --c-secondary:      #3b82f6;
+  --c-secondary-dark: #2563eb;
+
+  /* Header */
+  --c-header-bg:   #ffffff;
+  --c-header-text: #111827;
+  --c-header-border: #f3f4f6;
+
+  /* Hero gradient */
+  --c-hero-from: #f97316;
+  --c-hero-via:  #ea580c;
+  --c-hero-to:   #3b82f6;
+
+  /* Footer */
+  --c-footer-bg:   #111827;
+  --c-footer-text: #d1d5db;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background-color: #fffdfa;
   color: #1f2937;
+  font-family: var(--font-sans);
 }
 
 @layer components {
@@ -21,11 +44,35 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-500/30 transition hover:bg-brand-600 hover:shadow-brand-600/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:ring-offset-2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: var(--c-primary-text);
+    background-color: var(--c-primary);
+    box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--c-primary) 30%, transparent);
+    transition: background-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background-color: var(--c-primary-dark);
+  }
+  .btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary) 40%, transparent);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-ocean-500 px-6 py-3 font-semibold text-ocean-700 transition hover:bg-ocean-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-ocean-400 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 px-6 py-3 font-semibold transition focus:outline-none;
+    border-color: var(--c-secondary);
+    color: var(--c-secondary-dark);
+  }
+  .btn-secondary:hover {
+    background-color: var(--c-secondary);
+    color: white;
   }
 
   .card {
@@ -37,6 +84,6 @@ body {
   }
 
   .input-field {
-    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-200;
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200;
   }
 }

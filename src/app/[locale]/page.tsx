@@ -21,22 +21,34 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
   const featured = projects.slice(0, 6);
 
+  const heroTitleKey = locale === 'tr' ? 'design_hero_title_tr' : 'design_hero_title_fr';
+  const heroSubKey   = locale === 'tr' ? 'design_hero_sub_tr'   : 'design_hero_sub_fr';
+  const heroTitle    = settingValue(settings, heroTitleKey, locale, '') || t('heroTitle');
+  const heroSubtitle = settingValue(settings, heroSubKey, locale, '') || t('heroSubtitle');
+
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-600 to-ocean-600 text-white">
+      <section
+        className="relative overflow-hidden text-white"
+        style={{ background: 'linear-gradient(135deg, var(--c-hero-from) 0%, var(--c-hero-via) 50%, var(--c-hero-to) 100%)' }}
+      >
         <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,white_2px,transparent_2px)] [background-size:32px_32px]" />
         <div className="container-page relative grid gap-8 py-20 lg:grid-cols-2 lg:py-28">
-          <div className="animate-fade-up">
+          <div>
             <span className="inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-semibold backdrop-blur">
               Haut-Jura
             </span>
             <h1 className="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-              {t('heroTitle')}
+              {heroTitle}
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-white/90">{t('heroSubtitle')}</p>
+            <p className="mt-5 max-w-xl text-lg text-white/90">{heroSubtitle}</p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/contact" className="btn-primary !bg-white !text-brand-700 hover:!bg-brand-50">
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold transition"
+                style={{ backgroundColor: 'white', color: 'var(--c-primary-dark)' }}
+              >
                 {t('heroCta')}
               </Link>
               <Link
@@ -78,7 +90,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
           ) : (
             services.map((s) => (
               <div key={s.$id} className="card">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, transparent)', color: 'var(--c-primary-dark)' }}
+                >
                   <ServiceIcon name={s.icon} className="h-7 w-7" />
                 </div>
                 <h3 className="mt-4 text-xl font-bold text-gray-900">
@@ -118,10 +133,17 @@ export default async function HomePage({ params }: { params: { locale: string } 
 
       {/* CTA */}
       <section className="container-page pb-16">
-        <div className="rounded-3xl bg-gradient-to-r from-ocean-600 to-brand-600 px-8 py-12 text-center text-white shadow-xl">
+        <div
+          className="rounded-3xl px-8 py-12 text-center text-white shadow-xl"
+          style={{ background: 'linear-gradient(135deg, var(--c-secondary), var(--c-primary))' }}
+        >
           <h2 className="text-3xl font-extrabold">{t('ctaTitle')}</h2>
           <p className="mx-auto mt-2 max-w-xl text-white/90">{t('ctaText')}</p>
-          <Link href="/contact" className="btn-primary mt-6 !bg-white !text-brand-700 hover:!bg-brand-50">
+          <Link
+            href="/contact"
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold transition"
+            style={{ backgroundColor: 'white', color: 'var(--c-primary-dark)' }}
+          >
             {t('ctaButton')}
           </Link>
         </div>
@@ -145,7 +167,10 @@ function WhySection() {
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           {items.map((item) => (
             <div key={item.key} className="rounded-2xl bg-white p-6 text-center shadow-sm">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ocean-100 text-ocean-600">
+              <div
+                className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+                style={{ backgroundColor: 'color-mix(in srgb, var(--c-secondary) 12%, transparent)', color: 'var(--c-secondary-dark)' }}
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={item.icon} />
                 </svg>
@@ -173,7 +198,10 @@ function DefaultServices({ locale }: { locale: string }) {
     <>
       {defaults.map((d) => (
         <div key={d.icon} className="card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-xl"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, transparent)', color: 'var(--c-primary-dark)' }}
+          >
             <ServiceIcon name={d.icon} className="h-7 w-7" />
           </div>
           <h3 className="mt-4 text-xl font-bold text-gray-900">{d[idx][0]}</h3>

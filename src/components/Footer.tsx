@@ -14,35 +14,41 @@ export default function Footer({
 
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
-  const zone = settingValue(settings, 'zone', locale, 'Morbier / Jura');
+  const zone  = settingValue(settings, 'zone', locale, 'Morbier / Jura');
 
   return (
-    <footer className="mt-16 bg-gray-900 text-gray-300">
+    <footer
+      className="mt-16"
+      style={{ backgroundColor: 'var(--c-footer-bg)', color: 'var(--c-footer-text)' }}
+    >
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-ocean-500 font-black text-white">
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
+              style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
+            >
               CB
             </span>
             <span className="text-lg font-extrabold text-white">CBN Plaque</span>
           </div>
-          <p className="mt-3 text-sm text-gray-400">{t('footer.madeWith')}</p>
+          <p className="mt-3 text-sm opacity-60">{t('footer.madeWith')}</p>
         </div>
 
         <div>
           <h3 className="font-semibold text-white">{t('contact.infoTitle')}</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-brand-400">
+              <a href={`tel:${phone.replace(/\s/g, '')}`} className="opacity-80 transition hover:opacity-100">
                 {phone}
               </a>
             </li>
             <li>
-              <a href={`mailto:${email}`} className="hover:text-brand-400">
+              <a href={`mailto:${email}`} className="opacity-80 transition hover:opacity-100">
                 {email}
               </a>
             </li>
-            <li>{zone}</li>
+            <li className="opacity-70">{zone}</li>
           </ul>
         </div>
 
@@ -50,17 +56,17 @@ export default function Footer({
           <h3 className="font-semibold text-white">{t('nav.services')}</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li>
-              <Link href="/services" className="hover:text-brand-400">
+              <Link href="/services" className="opacity-80 transition hover:opacity-100">
                 {t('nav.services')}
               </Link>
             </li>
             <li>
-              <Link href="/realisations" className="hover:text-brand-400">
+              <Link href="/realisations" className="opacity-80 transition hover:opacity-100">
                 {t('nav.realisations')}
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-brand-400">
+              <Link href="/contact" className="opacity-80 transition hover:opacity-100">
                 {t('nav.contact')}
               </Link>
             </li>
@@ -68,7 +74,10 @@ export default function Footer({
         </div>
       </div>
 
-      <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+      <div
+        className="py-4 text-center text-xs opacity-50"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
+      >
         &copy; 2023 CBN Plaque. {t('footer.rights')}
       </div>
     </footer>

@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing';
 import { getSettings, settingValue } from '@/lib/data';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ThemeStyle from '@/components/ThemeStyle';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,10 +29,13 @@ export default async function LocaleLayout({
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
 
+  const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
+
   return (
     <NextIntlClientProvider messages={messages}>
+      <ThemeStyle />
       <div className="flex min-h-screen flex-col">
-        <Header locale={locale} phone={phone} email={email} />
+        <Header locale={locale} phone={phone} email={email} logoFileId={logoFileId} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} settings={settings} />
       </div>
