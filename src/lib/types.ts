@@ -2,12 +2,15 @@ export type Category = 'mur' | 'plafond' | 'comble';
 
 export interface ServiceDoc {
   $id: string;
+  $createdAt?: string;
+  $updatedAt?: string;
   title_fr: string;
   title_tr: string;
   desc_fr: string;
   desc_tr: string;
   icon: string;
   sort_order: number;
+  is_active?: boolean;
 }
 
 export interface ProjectDoc {

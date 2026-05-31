@@ -12,13 +12,12 @@ function isConfigured(): boolean {
   return Boolean(appwriteConfig.projectId);
 }
 
-export async function getServices(): Promise<ServiceDoc[]> {
+export async function getServices(activeOnly = true): Promise<ServiceDoc[]> {
   if (!isConfigured()) return [];
   try {
-    const res = await databases.listDocuments(databaseId, collections.services, [
-      Query.orderAsc('sort_order'),
-      Query.limit(100)
-    ]);
+    const queries = [Query.orderAsc('sort_order'), Query.limit(100)];
+    if (activeOnly) queries.push(Query.notEqual('is_active', false));
+    const res = await databases.listDocuments(databaseId, collections.services, queries);
     return res.documents as unknown as ServiceDoc[];
   } catch {
     return [];

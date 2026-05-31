@@ -164,6 +164,10 @@ async function main() {
   await str(COL.services, 'desc_tr', 2000, false);
   await str(COL.services, 'icon', 50, false);
   await int(COL.services, 'sort_order', false, 0);
+  await safe(
+    () => databases.createBooleanAttribute(databaseId, COL.services, 'is_active', false, true),
+    'attr services.is_active'
+  );
 
   // projects
   await str(COL.projects, 'title_fr', 255, true);
