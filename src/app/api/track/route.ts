@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client, Databases, Query } from 'node-appwrite';
+import { Client, Databases, Query, ID } from 'node-appwrite';
 
 const endpoint   = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT    ?? 'https://cloud.appwrite.io/v1';
 const projectId  = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID  ?? '';
@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
         views: (doc.views as number) + 1
       });
     } else {
-      const { ID } = await import('node-appwrite');
       await db.createDocument(databaseId, colId, ID.unique(), {
         date,
         page: slug,

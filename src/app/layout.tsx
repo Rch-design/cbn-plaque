@@ -17,7 +17,8 @@ const ADS_PUB_ID = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? '';
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
-      <head>
+      <body className="font-sans antialiased">
+        {children}
         {ADS_PUB_ID && (
           <Script
             async
@@ -26,8 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             strategy="afterInteractive"
           />
         )}
-      </head>
-      <body className="font-sans antialiased">{children}</body>
+      </body>
     </html>
   );
 }
