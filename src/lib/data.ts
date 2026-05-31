@@ -1,7 +1,6 @@
 import { databases, appwriteConfig, Query } from './appwrite';
 import type {
   ServiceDoc,
-  ServiceImageDoc,
   ProjectDoc,
   ProjectImageDoc,
   SettingDoc
@@ -28,39 +27,14 @@ export async function getServices(activeOnly = true): Promise<ServiceDoc[]> {
   }
 }
 
-export async function getProjects(category?: string): Promise<ProjectDoc[]> {
+export async function getProjects(category?: string, activeOnly = true): Promise<ProjectDoc[]> {
   if (!isConfigured()) return [];
   try {
     const queries = [Query.orderAsc('sort_order'), Query.limit(100)];
-    if (category && category !== 'all') {
-      queries.push(Query.equal('category', category));
-    }
+    if (category && category !== 'all') queries.push(Query.equal('category', category));
     const res = await databases.listDocuments(databaseId, collections.projects, queries);
-    return res.documents as unknown as ProjectDoc[];
-  } catch {
-    return [];
-  }
-}
-
-export async function getService(id: string): Promise<ServiceDoc | null> {
-  if (!isConfigured()) return null;
-  try {
-    const doc = await databases.getDocument(databaseId, collections.services, id);
-    return doc as unknown as ServiceDoc;
-  } catch {
-    return null;
-  }
-}
-
-export async function getServiceImages(serviceId: string): Promise<ServiceImageDoc[]> {
-  if (!isConfigured()) return [];
-  try {
-    const res = await databases.listDocuments(databaseId, collections.serviceImages, [
-      Query.equal('service_id', serviceId),
-      Query.orderAsc('sort_order'),
-      Query.limit(100)
-    ]);
-    return res.documents as unknown as ServiceImageDoc[];
+    const docs = res.documents as unknown as ProjectDoc[];
+    return activeOnly ? docs.filter((d) => d.is_active !== false) : docs;
   } catch {
     return [];
   }

@@ -181,6 +181,10 @@ async function main() {
   await str(COL.projects, 'category', 50, true);
   await str(COL.projects, 'cover_file_id', 255, false);
   await int(COL.projects, 'sort_order', false, 0);
+  await safe(
+    () => databases.createBooleanAttribute(databaseId, COL.projects, 'is_active', false, true),
+    'attr projects.is_active'
+  );
 
   // project_images
   await str(COL.projectImages, 'project_id', 255, true);

@@ -16,6 +16,7 @@ export interface ServiceDoc {
 
 export interface ProjectDoc {
   $id: string;
+  $createdAt: string;
   title_fr: string;
   title_tr: string;
   desc_fr: string;
@@ -23,19 +24,12 @@ export interface ProjectDoc {
   category: Category;
   cover_file_id: string;
   sort_order: number;
-  $createdAt: string;
+  is_active?: boolean;
 }
 
 export interface ProjectImageDoc {
   $id: string;
   project_id: string;
-  file_id: string;
-  sort_order: number;
-}
-
-export interface ServiceImageDoc {
-  $id: string;
-  service_id: string;
   file_id: string;
   sort_order: number;
 }
