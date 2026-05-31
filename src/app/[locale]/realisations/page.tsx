@@ -1,8 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { getProjects } from '@/lib/data';
-import { CATEGORIES } from '@/lib/types';
+import { loadCategories, getCatLabel } from '@/lib/categories';
 import ProjectCard from '@/components/ProjectCard';
-import CategoryFilter from '@/components/CategoryFilter';
+import { Link } from '@/i18n/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,9 +16,19 @@ export default async function RealisationsPage({
   const { locale } = params;
   const t = await getTranslations('realisations');
 
-  const cat = searchParams.cat;
-  const active = cat && (CATEGORIES as string[]).includes(cat) ? cat : 'all';
-  const projects = await getProjects(active);
+  const [cats, projects] = await Promise.all([
+    loadCategories(),
+    getProjects(undefined, true)
+  ]);
+
+  const validCatIds = cats.map((c) => c.id);
+  const active = searchParams.cat && validCatIds.includes(searchParams.cat)
+    ? searchParams.cat
+    : 'all';
+
+  const filtered = active === 'all'
+    ? projects
+    : projects.filter((p) => p.category === active);
 
   return (
     <div className="container-page py-14">
@@ -27,15 +37,40 @@ export default async function RealisationsPage({
         <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
       </header>
 
-      <div className="mt-8">
-        <CategoryFilter active={active} />
+      {/* Kategori filtresi */}
+      <div className="mt-8 flex flex-wrap justify-center gap-2">
+        <Link
+          href="/realisations"
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            active === 'all'
+              ? 'text-white shadow'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+          style={active === 'all' ? { background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' } : {}}
+        >
+          {t('all')}
+        </Link>
+        {cats.map((c) => (
+          <Link
+            key={c.id}
+            href={`/realisations?cat=${c.id}`}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              active === c.id
+                ? 'text-white shadow'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+            style={active === c.id ? { background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' } : {}}
+          >
+            {getCatLabel([c], c.id, locale)}
+          </Link>
+        ))}
       </div>
 
-      {projects.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="mt-16 text-center text-gray-500">{t('empty')}</p>
       ) : (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((p) => (
+          {filtered.map((p) => (
             <ProjectCard key={p.$id} project={p} locale={locale} />
           ))}
         </div>

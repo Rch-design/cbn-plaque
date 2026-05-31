@@ -1,4 +1,11 @@
-export type Category = 'mur' | 'plafond' | 'comble';
+export type Category = string;
+
+export interface ProjectCategory {
+  id: string;
+  fr: string;
+  tr: string;
+  color: 'orange' | 'blue' | 'purple' | 'green' | 'red' | 'pink' | 'yellow' | 'gray';
+}
 
 export interface ServiceDoc {
   $id: string;
@@ -62,7 +69,13 @@ export interface PageDoc {
   sort_order: number;
 }
 
-export const CATEGORIES: Category[] = ['mur', 'plafond', 'comble'];
+export const DEFAULT_CATEGORIES: ProjectCategory[] = [
+  { id: 'mur',     fr: 'Duvar / Mur',       tr: 'Duvar / Mur',       color: 'orange' },
+  { id: 'plafond', fr: 'Tavan / Plafond',    tr: 'Tavan / Plafond',   color: 'blue'   },
+  { id: 'comble',  fr: 'Çatı Katı / Comble', tr: 'Çatı Katı / Comble', color: 'purple' }
+];
+
+export const CATEGORIES: Category[] = DEFAULT_CATEGORIES.map((c) => c.id);
 
 export function localized<T extends Record<string, unknown>>(
   doc: T,
