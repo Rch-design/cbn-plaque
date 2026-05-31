@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { getServices } from '@/lib/data';
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
+import { fileViewUrl } from '@/lib/appwrite';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,17 +43,30 @@ export default async function ServicesPage({ params }: { params: { locale: strin
               </article>
             ))
           : services.map((s) => (
-              <article key={s.$id} className="flex gap-5 rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-ocean-500 text-white">
-                  <ServiceIcon name={s.icon} className="h-8 w-8" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    {localized(s as unknown as Record<string, unknown>, 'title', locale)}
-                  </h2>
-                  <p className="mt-1 text-gray-600">
-                    {localized(s as unknown as Record<string, unknown>, 'desc', locale)}
-                  </p>
+              <article key={s.$id} className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100">
+                {s.image_file_id && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={fileViewUrl(s.image_file_id)}
+                    alt={localized(s as unknown as Record<string, unknown>, 'title', locale)}
+                    className="h-48 w-full object-cover"
+                  />
+                )}
+                <div className="flex gap-4 p-5">
+                  <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white"
+                    style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
+                  >
+                    <ServiceIcon name={s.icon} className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      {localized(s as unknown as Record<string, unknown>, 'title', locale)}
+                    </h2>
+                    <p className="mt-1 text-gray-600">
+                      {localized(s as unknown as Record<string, unknown>, 'desc', locale)}
+                    </p>
+                  </div>
                 </div>
               </article>
             ))}

@@ -5,6 +5,7 @@ import { getServices, getProjects, getSettings, settingValue } from '@/lib/data'
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import ProjectCard from '@/components/ProjectCard';
+import { fileViewUrl } from '@/lib/appwrite';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,19 +90,29 @@ export default async function HomePage({ params }: { params: { locale: string } 
             <DefaultServices locale={locale} />
           ) : (
             services.map((s) => (
-              <div key={s.$id} className="card">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, transparent)', color: 'var(--c-primary-dark)' }}
-                >
-                  <ServiceIcon name={s.icon} className="h-7 w-7" />
+              <div key={s.$id} className="card overflow-hidden !p-0">
+                {s.image_file_id && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={fileViewUrl(s.image_file_id)}
+                    alt={localized(s as unknown as Record<string, unknown>, 'title', locale)}
+                    className="h-40 w-full object-cover"
+                  />
+                )}
+                <div className="p-5">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, transparent)', color: 'var(--c-primary-dark)' }}
+                  >
+                    <ServiceIcon name={s.icon} className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-3 text-xl font-bold text-gray-900">
+                    {localized(s as unknown as Record<string, unknown>, 'title', locale)}
+                  </h3>
+                  <p className="mt-1 text-gray-600">
+                    {localized(s as unknown as Record<string, unknown>, 'desc', locale)}
+                  </p>
                 </div>
-                <h3 className="mt-4 text-xl font-bold text-gray-900">
-                  {localized(s as unknown as Record<string, unknown>, 'title', locale)}
-                </h3>
-                <p className="mt-2 text-gray-600">
-                  {localized(s as unknown as Record<string, unknown>, 'desc', locale)}
-                </p>
               </div>
             ))
           )}

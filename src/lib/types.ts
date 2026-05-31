@@ -11,6 +11,7 @@ export interface ServiceDoc {
   icon: string;
   sort_order: number;
   is_active?: boolean;
+  image_file_id?: string;
 }
 
 export interface ProjectDoc {

@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
+import { useEffect, useRef, useState } from 'react';
+import { databases, storage, appwriteConfig, ID, Query, fileViewUrl } from '@/lib/appwrite';
 import { Permission, Role } from 'appwrite';
 import type { ServiceDoc } from '@/lib/types';
 import ServiceIcon, { SERVICE_ICONS } from '@/components/ServiceIcon';
 
-const { databaseId, collections } = appwriteConfig;
+const { databaseId, collections, bucketId } = appwriteConfig;
 
 const ICON_KEYS = Object.keys(SERVICE_ICONS);
 
@@ -17,7 +17,8 @@ const empty = (): Omit<ServiceDoc, '$id' | '$createdAt' | '$updatedAt'> => ({
   desc_tr: '',
   icon: 'wall',
   sort_order: 0,
-  is_active: true
+  is_active: true,
+  image_file_id: ''
 });
 
 export default function ServicesManager() {
@@ -28,6 +29,8 @@ export default function ServicesManager() {
   const [busy, setBusy]       = useState(false);
   const [saved, setSaved]     = useState(false);
   const [iconSearch, setIconSearch] = useState('');
+  const [uploadProgress, setUploadProgress] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
@@ -50,46 +53,80 @@ export default function ServicesManager() {
     setEditing('new');
     setForm({ ...empty(), sort_order: items.length });
     setIconSearch('');
+    if (fileRef.current) fileRef.current.value = '';
   }
 
   function startEdit(item: ServiceDoc) {
     setEditing(item.$id);
     setForm({
-      title_fr:   item.title_fr,
-      title_tr:   item.title_tr,
-      desc_fr:    item.desc_fr,
-      desc_tr:    item.desc_tr,
-      icon:       item.icon,
-      sort_order: item.sort_order,
-      is_active:  item.is_active ?? true
+      title_fr:      item.title_fr,
+      title_tr:      item.title_tr,
+      desc_fr:       item.desc_fr,
+      desc_tr:       item.desc_tr,
+      icon:          item.icon,
+      sort_order:    item.sort_order,
+      is_active:     item.is_active ?? true,
+      image_file_id: item.image_file_id ?? ''
     });
     setIconSearch('');
+    if (fileRef.current) fileRef.current.value = '';
   }
 
   function duplicate(item: ServiceDoc) {
     setEditing('new');
     setForm({
-      title_fr:   item.title_fr + ' (kopya)',
-      title_tr:   item.title_tr + ' (kopya)',
-      desc_fr:    item.desc_fr,
-      desc_tr:    item.desc_tr,
-      icon:       item.icon,
-      sort_order: items.length,
-      is_active:  false
+      title_fr:      item.title_fr + ' (kopya)',
+      title_tr:      item.title_tr + ' (kopya)',
+      desc_fr:       item.desc_fr,
+      desc_tr:       item.desc_tr,
+      icon:          item.icon,
+      sort_order:    items.length,
+      is_active:     false,
+      image_file_id: ''
     });
+  }
+
+  async function removeImage(fileId: string) {
+    if (!confirm('Bu resmi silmek istiyor musunuz?')) return;
+    try {
+      await storage.deleteFile(bucketId, fileId);
+      const newForm = { ...form, image_file_id: '' };
+      setForm(newForm);
+      if (editing && editing !== 'new') {
+        await databases.updateDocument(databaseId, collections.services, editing, { image_file_id: '' });
+      }
+    } catch { /* ignore */ }
   }
 
   async function save() {
     if (!form.title_fr.trim()) { alert('Fransızca başlık zorunludur.'); return; }
     setBusy(true);
     try {
+      let imageFileId = form.image_file_id ?? '';
+
+      // Resim yükle
+      const file = fileRef.current?.files?.[0];
+      if (file) {
+        setUploadProgress('Resim yükleniyor…');
+        if (imageFileId) {
+          try { await storage.deleteFile(bucketId, imageFileId); } catch { /* ignore */ }
+        }
+        const uploaded = await storage.createFile(bucketId, ID.unique(), file, [
+          Permission.read(Role.any())
+        ]);
+        imageFileId = uploaded.$id;
+        setUploadProgress('');
+      }
+
+      const payload = { ...form, image_file_id: imageFileId };
+
       if (editing === 'new') {
         await databases.createDocument(
-          databaseId, collections.services, ID.unique(), form,
+          databaseId, collections.services, ID.unique(), payload,
           [Permission.read(Role.any())]
         );
       } else if (editing) {
-        await databases.updateDocument(databaseId, collections.services, editing, form);
+        await databases.updateDocument(databaseId, collections.services, editing, payload);
       }
       setEditing(null);
       setSaved(true);
@@ -99,6 +136,7 @@ export default function ServicesManager() {
       alert('Kaydedilemedi. Bağlantı/izin ayarlarını kontrol edin.');
     } finally {
       setBusy(false);
+      setUploadProgress('');
     }
   }
 
@@ -279,17 +317,82 @@ export default function ServicesManager() {
             </div>
           </div>
 
+          {/* Resim yükleme */}
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Fotoğraf <span className="font-normal text-gray-400">(isteğe bağlı — hizmet kartında görünür)</span>
+            </label>
+            {form.image_file_id ? (
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={fileViewUrl(form.image_file_id)}
+                  alt="Hizmet görseli"
+                  className="h-20 w-28 rounded-xl object-cover ring-1 ring-gray-200"
+                />
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+                  >
+                    Değiştir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(form.image_file_id!)}
+                    className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
+                  >
+                    Kaldır
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="flex items-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-5 py-3 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-5-5L5 21" />
+                </svg>
+                Fotoğraf Yükle
+              </button>
+            )}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={() => {/* yükleme save'de yapılır */}}
+            />
+            {uploadProgress && (
+              <p className="mt-1 text-xs text-blue-600">{uploadProgress}</p>
+            )}
+          </div>
+
           {/* Ön izleme kartı */}
           <div className="mt-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Kart ön izlemesi</p>
             <div className="inline-block rounded-2xl bg-gray-50 p-4 shadow-sm ring-1 ring-gray-100 max-w-xs">
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-xl"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 12%, #fff)', color: 'var(--c-primary-dark, #ea580c)' }}
-              >
-                <ServiceIcon name={form.icon} className="h-7 w-7" />
-              </div>
-              <p className="mt-3 font-bold text-gray-900">{form.title_fr || 'Başlık (FR)'}</p>
+              {form.image_file_id ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={fileViewUrl(form.image_file_id)}
+                  alt=""
+                  className="mb-3 h-32 w-full rounded-xl object-cover"
+                />
+              ) : (
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 12%, #fff)', color: 'var(--c-primary-dark, #ea580c)' }}
+                >
+                  <ServiceIcon name={form.icon} className="h-7 w-7" />
+                </div>
+              )}
+              <p className="mt-1 font-bold text-gray-900">{form.title_fr || 'Başlık (FR)'}</p>
               <p className="mt-1 text-sm text-gray-500">{form.desc_fr || 'Açıklama (FR)…'}</p>
             </div>
           </div>
@@ -327,12 +430,19 @@ export default function ServicesManager() {
               (item.is_active ?? true) ? 'border-gray-100' : 'border-dashed border-gray-300 opacity-60'
             }`}
           >
-            {/* İkon */}
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-              style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, #fff)', color: 'var(--c-primary-dark, #ea580c)' }}
-            >
-              <ServiceIcon name={item.icon} className="h-6 w-6" />
+            {/* İkon veya resim */}
+            <div className="h-11 w-11 shrink-0 rounded-xl overflow-hidden">
+              {item.image_file_id ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={fileViewUrl(item.image_file_id)} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div
+                  className="flex h-full w-full items-center justify-center"
+                  style={{ backgroundColor: 'color-mix(in srgb, var(--c-primary) 10%, #fff)', color: 'var(--c-primary-dark, #ea580c)' }}
+                >
+                  <ServiceIcon name={item.icon} className="h-6 w-6" />
+                </div>
+              )}
             </div>
 
             {/* Bilgi */}

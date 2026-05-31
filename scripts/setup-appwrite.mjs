@@ -168,6 +168,10 @@ async function main() {
     () => databases.createBooleanAttribute(databaseId, COL.services, 'is_active', false, true),
     'attr services.is_active'
   );
+  await safe(
+    () => databases.createStringAttribute(databaseId, COL.services, 'image_file_id', 255, false),
+    'attr services.image_file_id'
+  );
 
   // projects
   await str(COL.projects, 'title_fr', 255, true);
