@@ -75,10 +75,24 @@ export default function Footer({
       </div>
 
       <div
-        className="py-4 text-center text-xs opacity-50"
+        className="py-4 text-xs opacity-60"
         style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
       >
-        &copy; 2023 CBN Plaque. {t('footer.rights')}
+        <div className="container-page flex flex-wrap items-center justify-between gap-3">
+          <span>&copy; 2023 CBN Plaque. {t('footer.rights')}</span>
+          <a
+            href="https://www.facebook.com/cbn.plaque"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 transition hover:bg-white/20"
+            aria-label="Facebook"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+            </svg>
+            cbn.plaque
+          </a>
+        </div>
       </div>
     </footer>
   );

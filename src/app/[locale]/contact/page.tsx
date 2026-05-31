@@ -28,7 +28,10 @@ export default async function ContactPage({ params }: { params: { locale: string
 
       <div className="mt-12 grid gap-8 lg:grid-cols-5">
         <div className="lg:col-span-2">
-          <div className="rounded-2xl bg-gradient-to-br from-brand-500 to-ocean-600 p-6 text-white">
+          <div
+            className="rounded-2xl p-6 text-white"
+            style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
+          >
             <h2 className="text-xl font-bold">{t('infoTitle')}</h2>
             <ul className="mt-6 space-y-5">
               {info.map((item) => (
@@ -50,6 +53,26 @@ export default async function ContactPage({ params }: { params: { locale: string
                   </div>
                 </li>
               ))}
+
+              {/* Facebook */}
+              <li className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-sm text-white/80">Facebook</p>
+                  <a
+                    href="https://www.facebook.com/cbn.plaque"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold hover:underline"
+                  >
+                    facebook.com/cbn.plaque
+                  </a>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
