@@ -52,7 +52,8 @@ const COL = {
   projects: process.env.NEXT_PUBLIC_APPWRITE_COL_PROJECTS || 'projects',
   projectImages: process.env.NEXT_PUBLIC_APPWRITE_COL_PROJECT_IMAGES || 'project_images',
   messages: process.env.NEXT_PUBLIC_APPWRITE_COL_MESSAGES || 'messages',
-  settings: process.env.NEXT_PUBLIC_APPWRITE_COL_SETTINGS || 'site_settings'
+  settings: process.env.NEXT_PUBLIC_APPWRITE_COL_SETTINGS || 'site_settings',
+  pages: process.env.NEXT_PUBLIC_APPWRITE_COL_PAGES || 'pages'
 };
 
 if (!projectId || !apiKey) {
@@ -149,6 +150,10 @@ async function main() {
     databases.createCollection(databaseId, COL.settings, 'Site Settings', contentPerms, false),
     'collection site_settings'
   );
+  await ignoreExists(
+    databases.createCollection(databaseId, COL.pages, 'Pages', contentPerms, false),
+    'collection pages'
+  );
 
   console.log('\nAttributs...');
 
@@ -185,6 +190,15 @@ async function main() {
   await str(COL.settings, 'key', 100, true);
   await str(COL.settings, 'value_fr', 2000, false);
   await str(COL.settings, 'value_tr', 2000, false);
+
+  // pages
+  await str(COL.pages, 'slug', 100, true);
+  await str(COL.pages, 'title_fr', 255, true);
+  await str(COL.pages, 'title_tr', 255, false);
+  await str(COL.pages, 'content_fr', 50000, false);
+  await str(COL.pages, 'content_tr', 50000, false);
+  await bool(COL.pages, 'is_published', true);
+  await int(COL.pages, 'sort_order', false, 0);
 
   console.log('\nStockage...');
   await ignoreExists(

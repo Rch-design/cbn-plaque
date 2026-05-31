@@ -79,6 +79,31 @@ export async function getSettings(): Promise<Record<string, SettingDoc>> {
   }
 }
 
+export async function getPages(publishedOnly = true): Promise<import('./types').PageDoc[]> {
+  if (!isConfigured()) return [];
+  try {
+    const queries = [Query.orderAsc('sort_order'), Query.limit(100)];
+    if (publishedOnly) queries.push(Query.equal('is_published', true));
+    const res = await databases.listDocuments(databaseId, collections.pages, queries);
+    return res.documents as unknown as import('./types').PageDoc[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getPage(slug: string): Promise<import('./types').PageDoc | null> {
+  if (!isConfigured()) return null;
+  try {
+    const res = await databases.listDocuments(databaseId, collections.pages, [
+      Query.equal('slug', slug),
+      Query.limit(1)
+    ]);
+    return (res.documents[0] as unknown as import('./types').PageDoc) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function settingValue(
   settings: Record<string, SettingDoc>,
   key: string,

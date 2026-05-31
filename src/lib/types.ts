@@ -46,6 +46,17 @@ export interface SettingDoc {
   value_tr: string;
 }
 
+export interface PageDoc {
+  $id: string;
+  slug: string;
+  title_fr: string;
+  title_tr: string;
+  content_fr: string;
+  content_tr: string;
+  is_published: boolean;
+  sort_order: number;
+}
+
 export const CATEGORIES: Category[] = ['mur', 'plafond', 'comble'];
 
 export function localized<T extends Record<string, unknown>>(

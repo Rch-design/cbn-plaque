@@ -6,12 +6,14 @@ import ServicesManager from './ServicesManager';
 import ProjectsManager from './ProjectsManager';
 import MessagesManager from './MessagesManager';
 import SettingsManager from './SettingsManager';
+import PagesManager from './PagesManager';
 
-type Tab = 'projects' | 'services' | 'messages' | 'settings';
+type Tab = 'projects' | 'services' | 'pages' | 'messages' | 'settings';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'projects', label: 'Referanslar / Projeler' },
   { id: 'services', label: 'Hizmetler' },
+  { id: 'pages', label: 'Sayfalar' },
   { id: 'messages', label: 'Mesajlar' },
   { id: 'settings', label: 'Ayarlar' }
 ];
@@ -95,6 +97,7 @@ export default function AdminApp() {
         <div className="mt-6">
           {tab === 'projects' && <ProjectsManager />}
           {tab === 'services' && <ServicesManager />}
+          {tab === 'pages' && <PagesManager />}
           {tab === 'messages' && <MessagesManager />}
           {tab === 'settings' && <SettingsManager />}
         </div>
