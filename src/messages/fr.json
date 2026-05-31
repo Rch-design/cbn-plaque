@@ -7,9 +7,20 @@
     "home": "Accueil",
     "services": "Services",
     "realisations": "Réalisations",
+    "avis": "Avis",
     "contact": "Contact",
     "admin": "Admin",
     "quote": "Demander un devis"
+  },
+  "reviews": {
+    "title": "Avis clients",
+    "subtitle": "Ce que nos clients disent de nous. Partagez votre expérience sur Google !",
+    "reviewCount": "avis",
+    "leaveReview": "Laisser un avis Google",
+    "empty": "Aucun avis pour le moment.",
+    "ctaTitle": "Satisfait de notre travail ?",
+    "ctaText": "Votre avis nous aide à nous améliorer et à être trouvés par de nouveaux clients.",
+    "contactUs": "Nous contacter"
   },
   "home": {
     "heroTitle": "Donnez vie à vos espaces",

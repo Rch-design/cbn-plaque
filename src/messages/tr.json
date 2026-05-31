@@ -7,9 +7,20 @@
     "home": "Anasayfa",
     "services": "Hizmetler",
     "realisations": "Referanslar",
+    "avis": "Değerlendirmeler",
     "contact": "İletişim",
     "admin": "Yönetim",
     "quote": "Teklif İste"
+  },
+  "reviews": {
+    "title": "Müşteri Değerlendirmeleri",
+    "subtitle": "Müşterilerimiz bizi anlattı. Siz de Google'da deneyiminizi paylaşın!",
+    "reviewCount": "değerlendirme",
+    "leaveReview": "Google'da Değerlendirme Yaz",
+    "empty": "Henüz değerlendirme yok.",
+    "ctaTitle": "Hizmetimizden memnun kaldınız mı?",
+    "ctaText": "Değerlendirmeniz yeni müşterilere ulaşmamıza yardımcı olur.",
+    "contactUs": "Bize Ulaşın"
   },
   "home": {
     "heroTitle": "Mekanlarınıza hayat verin",

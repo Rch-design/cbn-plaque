@@ -8,18 +8,20 @@ import MessagesManager from './MessagesManager';
 import SettingsManager from './SettingsManager';
 import PagesManager from './PagesManager';
 import DesignManager from './DesignManager';
+import ReviewsManager from './ReviewsManager';
 
 const { databaseId, collections } = appwriteConfig;
 
-type Tab = 'projects' | 'services' | 'pages' | 'messages' | 'settings' | 'design';
+type Tab = 'projects' | 'services' | 'pages' | 'messages' | 'settings' | 'design' | 'reviews';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'projects',  label: 'Referanslar', icon: '📸' },
-  { id: 'services',  label: 'Hizmetler',   icon: '🔧' },
-  { id: 'pages',     label: 'Sayfalar',    icon: '📄' },
-  { id: 'messages',  label: 'Mesajlar',    icon: '✉️' },
-  { id: 'settings',  label: 'Ayarlar',     icon: '⚙️' },
-  { id: 'design',    label: 'Tasarım',     icon: '🎨' }
+  { id: 'projects',  label: 'Referanslar',       icon: '📸' },
+  { id: 'services',  label: 'Hizmetler',          icon: '🔧' },
+  { id: 'pages',     label: 'Sayfalar',           icon: '📄' },
+  { id: 'reviews',   label: 'Değerlendirmeler',   icon: '⭐' },
+  { id: 'messages',  label: 'Mesajlar',           icon: '✉️' },
+  { id: 'settings',  label: 'Ayarlar',            icon: '⚙️' },
+  { id: 'design',    label: 'Tasarım',            icon: '🎨' }
 ];
 
 export default function AdminApp() {
@@ -141,6 +143,7 @@ export default function AdminApp() {
           {tab === 'projects'  && <ProjectsManager />}
           {tab === 'services'  && <ServicesManager />}
           {tab === 'pages'     && <PagesManager />}
+          {tab === 'reviews'   && <ReviewsManager />}
           {tab === 'messages'  && <MessagesManager onCountChange={setUnreadCount} />}
           {tab === 'settings'  && <SettingsManager />}
           {tab === 'design'    && <DesignManager />}

@@ -58,6 +58,18 @@ export interface SettingDoc {
   value_tr: string;
 }
 
+export interface ReviewDoc {
+  $id: string;
+  $createdAt: string;
+  name: string;
+  rating: number;
+  body: string;
+  source?: string;
+  date_label?: string;
+  is_active?: boolean;
+  sort_order: number;
+}
+
 export interface PageDoc {
   $id: string;
   slug: string;

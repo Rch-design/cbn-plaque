@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "setup:appwrite": "node scripts/setup-appwrite.mjs",
-    "migrate:attributes": "node scripts/migrate-new-attributes.mjs"
+    "migrate:attributes": "node scripts/migrate-new-attributes.mjs",
+    "setup:reviews": "node scripts/add-reviews-collection.mjs"
   },
   "dependencies": {
     "appwrite": "^16.0.2",

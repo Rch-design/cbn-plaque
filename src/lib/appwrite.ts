@@ -11,7 +11,8 @@ export const appwriteConfig = {
     projectImages: process.env.NEXT_PUBLIC_APPWRITE_COL_PROJECT_IMAGES ?? 'project_images',
     messages: process.env.NEXT_PUBLIC_APPWRITE_COL_MESSAGES ?? 'messages',
     settings: process.env.NEXT_PUBLIC_APPWRITE_COL_SETTINGS ?? 'site_settings',
-    pages: process.env.NEXT_PUBLIC_APPWRITE_COL_PAGES ?? 'pages'
+    pages:   process.env.NEXT_PUBLIC_APPWRITE_COL_PAGES    ?? 'pages',
+    reviews: process.env.NEXT_PUBLIC_APPWRITE_COL_REVIEWS  ?? 'reviews'
   }
 };
 

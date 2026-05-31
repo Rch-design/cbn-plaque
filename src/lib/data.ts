@@ -3,7 +3,8 @@ import type {
   ServiceDoc,
   ProjectDoc,
   ProjectImageDoc,
-  SettingDoc
+  SettingDoc,
+  ReviewDoc
 } from './types';
 
 const { databaseId, collections } = appwriteConfig;
@@ -102,6 +103,20 @@ export async function getPage(slug: string): Promise<import('./types').PageDoc |
     return (res.documents[0] as unknown as import('./types').PageDoc) ?? null;
   } catch {
     return null;
+  }
+}
+
+export async function getReviews(activeOnly = true): Promise<ReviewDoc[]> {
+  if (!isConfigured()) return [];
+  try {
+    const res = await databases.listDocuments(databaseId, collections.reviews, [
+      Query.orderAsc('sort_order'),
+      Query.limit(100)
+    ]);
+    const docs = res.documents as unknown as ReviewDoc[];
+    return activeOnly ? docs.filter((d) => d.is_active !== false) : docs;
+  } catch {
+    return [];
   }
 }
 
