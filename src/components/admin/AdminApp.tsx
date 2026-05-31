@@ -9,19 +9,23 @@ import SettingsManager from './SettingsManager';
 import PagesManager from './PagesManager';
 import DesignManager from './DesignManager';
 import ReviewsManager from './ReviewsManager';
+import BannersManager from './BannersManager';
+import AnalyticsPanel from './AnalyticsPanel';
 
 const { databaseId, collections } = appwriteConfig;
 
-type Tab = 'projects' | 'services' | 'pages' | 'messages' | 'settings' | 'design' | 'reviews';
+type Tab = 'projects' | 'services' | 'pages' | 'reviews' | 'banners' | 'messages' | 'settings' | 'design' | 'analytics';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'projects',  label: 'Referanslar',       icon: '📸' },
-  { id: 'services',  label: 'Hizmetler',          icon: '🔧' },
-  { id: 'pages',     label: 'Sayfalar',           icon: '📄' },
-  { id: 'reviews',   label: 'Değerlendirmeler',   icon: '⭐' },
-  { id: 'messages',  label: 'Mesajlar',           icon: '✉️' },
-  { id: 'settings',  label: 'Ayarlar',            icon: '⚙️' },
-  { id: 'design',    label: 'Tasarım',            icon: '🎨' }
+  { id: 'analytics', label: 'İstatistikler',      icon: '📊' },
+  { id: 'projects',  label: 'Referanslar',         icon: '📸' },
+  { id: 'services',  label: 'Hizmetler',           icon: '🔧' },
+  { id: 'pages',     label: 'Sayfalar',            icon: '📄' },
+  { id: 'reviews',   label: 'Değerlendirmeler',    icon: '⭐' },
+  { id: 'banners',   label: 'Bannerlar',           icon: '🎯' },
+  { id: 'messages',  label: 'Mesajlar',            icon: '✉️' },
+  { id: 'settings',  label: 'Ayarlar',             icon: '⚙️' },
+  { id: 'design',    label: 'Tasarım',             icon: '🎨' }
 ];
 
 export default function AdminApp() {
@@ -142,8 +146,10 @@ export default function AdminApp() {
         <div className="mt-6">
           {tab === 'projects'  && <ProjectsManager />}
           {tab === 'services'  && <ServicesManager />}
+          {tab === 'analytics' && <AnalyticsPanel />}
           {tab === 'pages'     && <PagesManager />}
           {tab === 'reviews'   && <ReviewsManager />}
+          {tab === 'banners'   && <BannersManager />}
           {tab === 'messages'  && <MessagesManager onCountChange={setUnreadCount} />}
           {tab === 'settings'  && <SettingsManager />}
           {tab === 'design'    && <DesignManager />}

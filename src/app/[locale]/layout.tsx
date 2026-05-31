@@ -7,6 +7,8 @@ import { getSettings, settingValue } from '@/lib/data';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ThemeStyle from '@/components/ThemeStyle';
+import Tracker from '@/components/Tracker';
+import AdBanner from '@/components/AdBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,8 +36,10 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <ThemeStyle />
+      <Tracker />
       <div className="flex min-h-screen flex-col">
         <Header locale={locale} phone={phone} email={email} logoFileId={logoFileId} />
+        <AdBanner pageSlug="all" />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} settings={settings} />
       </div>
