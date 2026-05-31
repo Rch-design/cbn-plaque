@@ -56,7 +56,7 @@ export default function Header({
               className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
               style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
             >
-              CB
+              CBN
             </span>
           )}
           <span className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--c-header-text)' }}>

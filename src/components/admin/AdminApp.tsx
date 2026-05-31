@@ -57,7 +57,7 @@ export default function AdminApp() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-blue-500 font-black text-white">
-              CB
+              CBN
             </span>
             <span className="font-extrabold text-gray-900">Yönetim Paneli</span>
           </div>
@@ -132,8 +132,8 @@ function LoginForm({ onSuccess }: { onSuccess: (email: string) => void }) {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-500 to-blue-600 px-4">
       <div className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
         <div className="mb-6 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-blue-500 font-black text-white text-lg">
-            CB
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-blue-500 font-black text-white text-sm">
+            CBN
           </span>
           <h1 className="mt-3 text-xl font-extrabold text-gray-900">Yönetim Paneli</h1>
           <p className="text-sm text-gray-500">CBN Plaque</p>

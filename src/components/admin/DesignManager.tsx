@@ -407,7 +407,7 @@ export default function DesignManager() {
                   </div>
                   {!logoPreview && (
                     <p className="mt-2 text-xs text-gray-500">
-                      Logo yüklenmezse sağ üstte "CB" harfleri görünür.
+                      Logo yüklenmezse sağ üstte "CBN" harfleri görünür.
                     </p>
                   )}
                 </div>
