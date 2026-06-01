@@ -2,28 +2,22 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { trackPageView } from '@/lib/analytics';
 
 export default function Tracker() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !pathname) return;
 
-    // sessionStorage ile aynı sayfayı bir session içinde bir kez say
     const key = `tracked_${pathname}`;
     if (sessionStorage.getItem(key)) return;
 
-    // Bot filtreleme
     const ua = navigator.userAgent.toLowerCase();
     if (/bot|crawler|spider|prerender|lighthouse|headless/.test(ua)) return;
 
     sessionStorage.setItem(key, '1');
-
-    fetch('/api/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: pathname })
-    }).catch(() => {});
+    trackPageView(pathname);
   }, [pathname]);
 
   return null;

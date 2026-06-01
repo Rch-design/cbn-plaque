@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Client, Databases, Query, ID } from 'node-appwrite';
 
+/**
+ * Optional server-side tracking (requires APPWRITE_API_KEY on Vercel).
+ * Public site uses Appwrite client SDK directly — see src/lib/analytics.ts
+ */
 const endpoint   = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT    ?? 'https://cloud.appwrite.io/v1';
 const projectId  = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID  ?? '';
 const apiKey     = process.env.APPWRITE_API_KEY                 ?? '';
@@ -20,7 +24,10 @@ export async function POST(req: NextRequest) {
   try {
     const { page } = await req.json() as { page?: string };
     if (!page || !projectId || !apiKey) {
-      return NextResponse.json({ ok: false }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, hint: 'Use client-side tracking or set APPWRITE_API_KEY' },
+        { status: 400 }
+      );
     }
 
     const db   = getServerClient();

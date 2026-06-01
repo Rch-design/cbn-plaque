@@ -1,13 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { fetchAnalyticsRows, type AnalyticsRow } from '@/lib/analytics';
 
-interface Row {
-  $id: string;
-  date: string;
-  page: string;
-  views: number;
-}
+type Row = AnalyticsRow;
 
 interface DayStat { date: string; views: number }
 interface PageStat { page: string; views: number }
@@ -53,15 +49,23 @@ function pageName(path: string, locale = 'fr'): string {
 export default function AnalyticsPanel() {
   const [rows,    setRows]    = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState('');
   const [range,   setRange]   = useState<7 | 14 | 30>(14);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
-      const res = await fetch('/api/track');
-      const data = await res.json() as { rows: Row[] };
-      setRows(data.rows ?? []);
-    } catch { setRows([]); }
+      const data = await fetchAnalyticsRows(30);
+      setRows(data);
+      if (data.length === 0) {
+        setError('');
+      }
+    } catch (e) {
+      setRows([]);
+      setError('Veriler yüklenemedi. Appwrite CORS / izinlerini kontrol edin.');
+      console.error(e);
+    }
     setLoading(false);
   }, []);
 
@@ -73,7 +77,14 @@ export default function AnalyticsPanel() {
     <div className="py-16 text-center">
       <p className="text-5xl">📊</p>
       <p className="mt-4 text-xl font-bold text-gray-700">Henüz ziyaretçi verisi yok.</p>
-      <p className="mt-1 text-sm text-gray-400">Siteye ilk ziyaret geldiğinde veriler burada görünür.</p>
+      <p className="mt-1 text-sm text-gray-400">
+        Ana siteyi bir kez ziyaret edin (yeni sekme), sonra <strong>Yenile</strong>ye basın.
+      </p>
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      <button type="button" onClick={load}
+        className="btn-primary mt-6 !px-5 !py-2 text-sm">
+        🔄 Yenile
+      </button>
     </div>
   );
 
