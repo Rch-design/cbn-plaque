@@ -1,11 +1,13 @@
 import type { MetadataRoute } from 'next';
+import { getProjects } from '@/lib/data';
 import { SITE_URL } from '@/lib/seo';
 import { SEO_PAGE_SLUGS } from '@/lib/page-templates';
 
 const paths = ['', '/services', '/realisations', '/guides', '/avis', '/contact'] as const;
 
-/** Statik sitemap — Appwrite bagimliligi yok, Google her zaman okuyabilir */
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = 'force-dynamic';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
@@ -58,6 +60,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.65
+    });
+  }
+
+  const projects = await getProjects(undefined, true);
+  for (const project of projects) {
+    const path = `/realisations/${project.$id}`;
+    const updated = (project as { $updatedAt?: string }).$updatedAt;
+    const lastModified = updated ? new Date(updated) : now;
+
+    entries.push({
+      url: `${SITE_URL}${path}`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: {
+        languages: {
+          fr: `${SITE_URL}${path}`,
+          tr: `${SITE_URL}/tr${path}`
+        }
+      }
+    });
+    entries.push({
+      url: `${SITE_URL}/tr${path}`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6
     });
   }
 
