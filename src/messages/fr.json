@@ -43,7 +43,30 @@
     },
     "ctaTitle": "Un projet en tête ?",
     "ctaText": "Parlons-en. Réponse rapide et devis gratuit.",
-    "ctaButton": "Me contacter"
+    "ctaButton": "Me contacter",
+    "seo": {
+      "title": "CBN Plaque — Plaquiste & peintre à Morbier | Haut-Jura (39)",
+      "description": "Artisan plaquiste et peintre à Morbier dans le Haut-Jura. Pose de plaques de plâtre, plâtrerie, peinture, décoration et isolation. Devis gratuit — 06 12 60 55 00.",
+      "keywords": "plaquiste Morbier, peintre Morbier, plâtrerie Haut-Jura, pose plaque plâtre Jura, décoration intérieure Morbier, artisan 39400, devis plaquiste",
+      "h1": "Plaquiste et peintre à Morbier — plâtrerie, peinture & décoration",
+      "badge": "Artisan local · Haut-Jura · Jura (39)",
+      "introTitle": "Votre artisan plaquiste à Morbier et dans le Haut-Jura",
+      "intro1": "CBN Plaque accompagne particuliers et professionnels pour la pose de plaques de plâtre, la plâtrerie, la peinture intérieure, la décoration sur mesure et l'isolation dans le Haut-Jura.",
+      "intro2": "Basés à Morbier, nous intervenons dans le Jura (39) et les communes voisines : Morez, Les Rousses, Saint-Claude et la région franco-suisse proche. Travail soigné, finitions propres et devis gratuit.",
+      "zonesTitle": "Zones d'intervention",
+      "zones": "Morbier, Morez, Les Rousses, Saint-Claude, Haut-Jura, département du Jura (39)",
+      "faqTitle": "Questions fréquentes"
+    },
+    "faq": {
+      "q1": "Intervenez-vous uniquement à Morbier ?",
+      "a1": "Non. Nous sommes basés à Morbier et intervenons dans tout le Haut-Jura et le département du Jura, ainsi que dans les communes limitrophes.",
+      "q2": "Proposez-vous un devis gratuit ?",
+      "a2": "Oui. Chaque projet fait l'objet d'un devis gratuit et sans engagement, après échange téléphonique ou visite sur place si nécessaire.",
+      "q3": "Quels travaux réalisez-vous ?",
+      "a3": "Plaques de plâtre, plâtrerie, peinture intérieure, décoration (niches, habillages), isolation thermique et finitions complètes.",
+      "q4": "Comment vous contacter ?",
+      "a4": "Par téléphone au 06 12 60 55 00, par e-mail à cbnplaque@gmail.com ou via le formulaire de contact du site."
+    }
   },
   "services": {
     "title": "Nos services",
