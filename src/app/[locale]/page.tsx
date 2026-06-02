@@ -9,7 +9,6 @@ import { fileViewUrl } from '@/lib/appwrite';
 import GoogleAdBanner from '@/components/GoogleAdBanner';
 import {
   absoluteUrl,
-  buildFaqJsonLd,
   buildLocalBusinessJsonLd,
   buildPageMetadata,
   buildWebSiteJsonLd
@@ -38,7 +37,6 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const { locale } = params;
   const t = await getTranslations('home');
   const ts = await getTranslations('home.seo');
-  const tf = await getTranslations('home.faq');
 
   const [services, projects, settings] = await Promise.all([
     getServices(),
@@ -58,13 +56,6 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const logoUrl = logoFileId ? fileViewUrl(logoFileId) : undefined;
   const pageUrl = absoluteUrl(locale);
 
-  const faqItems = [
-    { question: tf('q1'), answer: tf('a1') },
-    { question: tf('q2'), answer: tf('a2') },
-    { question: tf('q3'), answer: tf('a3') },
-    { question: tf('q4'), answer: tf('a4') }
-  ];
-
   const jsonLd = [
     buildLocalBusinessJsonLd({
       description: ts('description'),
@@ -75,8 +66,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
       url: pageUrl,
       logoUrl
     }),
-    buildWebSiteJsonLd(locale),
-    buildFaqJsonLd(faqItems)
+    buildWebSiteJsonLd(locale)
   ];
 
   return (
@@ -173,6 +163,9 @@ export default async function HomePage({ params }: { params: { locale: string } 
             <Link href="/avis" className="font-semibold text-blue-700 hover:underline">
               {locale === 'tr' ? 'Değerlendirmeler →' : 'Avis clients →'}
             </Link>
+            <Link href="/guides" className="font-semibold text-blue-700 hover:underline">
+              {locale === 'tr' ? 'Rehberler →' : 'Guides & conseils →'}
+            </Link>
             <Link href="/contact" className="font-semibold text-blue-700 hover:underline">
               {locale === 'tr' ? 'İletişim →' : 'Contact →'}
             </Link>
@@ -254,23 +247,6 @@ export default async function HomePage({ params }: { params: { locale: string } 
           </div>
         </section>
       )}
-
-      {/* FAQ — visible + FAQ schema for Google */}
-      <section aria-labelledby="faq-heading" className="bg-gray-50 py-16">
-        <div className="container-page max-w-3xl">
-          <h2 id="faq-heading" className="section-title text-center">
-            {ts('faqTitle')}
-          </h2>
-          <dl className="mt-10 space-y-4">
-            {faqItems.map((item, i) => (
-              <div key={i} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
-                <dt className="font-bold text-gray-900">{item.question}</dt>
-                <dd className="mt-2 text-gray-600 leading-relaxed">{item.answer}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
 
       {/* CTA */}
       <section aria-labelledby="cta-heading" className="container-page pb-16">
