@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { settingValue } from '@/lib/data';
 import type { SettingDoc } from '@/lib/types';
 import { EXTERNAL_LINKS } from '@/lib/seo';
+import CookieSettingsLink from '@/components/CookieSettingsLink';
 
 export default function Footer({
   locale,
@@ -107,6 +108,7 @@ export default function Footer({
             </svg>
             cbn.plaque
           </a>
+            <CookieSettingsLink />
           </div>
         </div>
       </div>

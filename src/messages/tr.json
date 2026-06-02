@@ -128,6 +128,18 @@
     "rights": "Tüm hakları saklıdır.",
     "madeWith": "Jura bölgesinde alçı, boya ve dekorasyon."
   },
+  "cookies": {
+    "title": "Çerezler ve gizlilik",
+    "text": "Site trafiğini ölçmek ve varsa reklam göstermek için çerezler kullanıyoruz. Kabul edebilir veya reddedebilirsiniz.",
+    "accept": "Kabul et",
+    "reject": "Reddet",
+    "privacy": "Bize ulaşın",
+    "manage": "Çerezler"
+  },
+  "whatsapp": {
+    "label": "WhatsApp ile yazın",
+    "defaultMessage": "Merhaba CBN Plaque, işler için teklif almak istiyorum."
+  },
   "admin": {
     "loginTitle": "Yönetim paneli",
     "email": "E-posta",

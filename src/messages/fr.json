@@ -128,6 +128,18 @@
     "rights": "Tous droits réservés.",
     "madeWith": "Plâtrerie, peinture et décoration dans le Jura."
   },
+  "cookies": {
+    "title": "Cookies et confidentialité",
+    "text": "Nous utilisons des cookies pour mesurer l'audience du site et, le cas échéant, afficher des publicités. Vous pouvez accepter ou refuser.",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "privacy": "Nous contacter",
+    "manage": "Cookies"
+  },
+  "whatsapp": {
+    "label": "Nous écrire sur WhatsApp",
+    "defaultMessage": "Bonjour CBN Plaque, je souhaiterais un devis pour des travaux."
+  },
   "admin": {
     "loginTitle": "Espace administration",
     "email": "E-mail",

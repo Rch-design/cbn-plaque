@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { CONSENT_EVENT, hasAnalyticsConsent } from '@/lib/consent';
 
 interface Props {
   slot: string;
@@ -21,19 +22,37 @@ export default function GoogleAdBanner({
   fullWidth = true,
   className = ''
 }: Props) {
-  const adRef  = useRef<HTMLModElement>(null);
+  const adRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
-  const pubId  = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? '';
+  const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? '';
+  const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    if (!pubId || !slot || pushed.current) return;
-    try {
-      pushed.current = true;
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {}
+    function sync() {
+      setAllowed(hasAnalyticsConsent());
+    }
+    sync();
+    window.addEventListener(CONSENT_EVENT, sync);
+    return () => window.removeEventListener(CONSENT_EVENT, sync);
+  }, []);
+
+  useEffect(() => {
+    function pushAd() {
+      if (!pubId || !slot || pushed.current || !hasAnalyticsConsent()) return;
+      try {
+        pushed.current = true;
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch {
+        pushed.current = false;
+      }
+    }
+
+    pushAd();
+    window.addEventListener(CONSENT_EVENT, pushAd);
+    return () => window.removeEventListener(CONSENT_EVENT, pushAd);
   }, [pubId, slot]);
 
-  if (!pubId || !slot) return null;
+  if (!pubId || !slot || !allowed) return null;
 
   return (
     <div className={`overflow-hidden text-center ${className}`}>

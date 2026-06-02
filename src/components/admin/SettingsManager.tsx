@@ -6,10 +6,23 @@ import type { SettingDoc } from '@/lib/types';
 
 const { databaseId, collections } = appwriteConfig;
 
-const KEYS: { key: string; label: string; bilingual: boolean }[] = [
+const KEYS: {
+  key: string;
+  label: string;
+  bilingual: boolean;
+  hint?: string;
+  inputType?: string;
+}[] = [
   { key: 'phone', label: 'Telefon', bilingual: false },
   { key: 'email', label: 'E-posta', bilingual: false },
-  { key: 'zone', label: 'Hizmet bölgesi', bilingual: true }
+  { key: 'zone', label: 'Hizmet bölgesi', bilingual: true },
+  {
+    key: 'google_review_url',
+    label: 'Google yorum linki',
+    bilingual: false,
+    hint: 'Google Business → Paylaş → « Yorum iste » linkini yapıştırın',
+    inputType: 'url'
+  }
 ];
 
 export default function SettingsManager() {
@@ -77,6 +90,7 @@ export default function SettingsManager() {
         {KEYS.map((k) => (
           <div key={k.key}>
             <label className="mb-1 block text-sm font-semibold text-gray-700">{k.label}</label>
+            {k.hint && <p className="mb-2 text-xs text-gray-500">{k.hint}</p>}
             {k.bilingual ? (
               <div className="grid gap-2 sm:grid-cols-2">
                 <input
@@ -98,11 +112,13 @@ export default function SettingsManager() {
               </div>
             ) : (
               <input
+                type={k.inputType ?? 'text'}
                 value={values[k.key]?.fr ?? ''}
                 onChange={(e) =>
                   setValues({ ...values, [k.key]: { fr: e.target.value, tr: e.target.value } })
                 }
                 className="input-field"
+                placeholder={k.key === 'google_review_url' ? 'https://g.page/r/...' : undefined}
               />
             )}
           </div>
