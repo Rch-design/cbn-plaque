@@ -121,13 +121,19 @@ export async function POST(req: NextRequest) {
     }
 
     let emailed = false;
-    try {
-      emailed = await sendNotifyEmail(payload);
-    } catch {
-      /* e-posta hatasi mesaji engellemez */
+    let emailReason: string | undefined;
+    if (!resendKey) {
+      emailReason = 'missing_resend_key';
+    } else {
+      try {
+        emailed = await sendNotifyEmail(payload);
+        if (!emailed) emailReason = 'resend_rejected';
+      } catch {
+        emailReason = 'resend_error';
+      }
     }
 
-    return NextResponse.json({ ok: true, emailed });
+    return NextResponse.json({ ok: true, emailed, emailReason });
   } catch {
     return NextResponse.json({ ok: false, error: 'server_error' }, { status: 500 });
   }
