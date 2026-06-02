@@ -3,7 +3,9 @@
 export const SEO_PAGE_SLUGS = [
   'pose-plaques-platre-morbier',
   'peinture-interieure-haut-jura',
-  'renovation-combles-jura'
+  'renovation-combles-jura',
+  'isolation-thermique-jura',
+  'decoration-interieure-morbier'
 ];
 
 export const PAGE_TEMPLATES = [
@@ -206,6 +208,122 @@ Haut-Jura evlerinde çatı arası genelde kullanılmayan alan. İyi izolasyon ve
 - Bölme duvar ve koridor
 - Asma tavan ve LED aydınlatma
 - Boya ve son işler
+
+## Bölgeler
+
+Morbier, Morez, Les Rousses, Saint-Claude, Jura (39).
+
+## Teklif
+
+06 12 60 55 00 — ücretsiz keşif.`
+  },
+  {
+    id: 'isolation',
+    label: 'Isolation thermique — Jura',
+    slug: 'isolation-thermique-jura',
+    title_fr: 'Isolation thermique à Morbier — murs et plafonds Haut-Jura',
+    title_tr: 'Morbier ısı yalıtımı — duvar ve tavan Haut-Jura',
+    seo_keywords_fr:
+      'isolation thermique Morbier, isolation murs Jura 39, isolation plafond Haut-Jura, économies énergie Morez, artisan isolation intérieure',
+    seo_keywords_tr:
+      'Morbier ısı yalıtımı, Jura 39 duvar yalıtımı, Haut-Jura tavan izolasyonu, Morez enerji tasarrufu',
+    content_fr: `CBN Plaque réalise l'isolation thermique par l'intérieur à Morbier et dans le Haut-Jura (Jura 39). Murs, plafonds et combles : réduisez vos factures de chauffage et améliorez le confort de votre logement toute l'année.
+
+## Pourquoi isoler par l'intérieur ?
+
+Dans le Jura, les maisons anciennes et les chalets présentent souvent d'importantes déperditions thermiques. L'isolation par l'intérieur (ITI) est la solution la plus adaptée lorsque l'isolation extérieure n'est pas possible ou souhaitée. Couplée à la pose de plaques de plâtre, elle permet une finition propre et prête à peindre.
+
+## Nos prestations isolation
+
+- Isolation des murs par doublage (laine de verre, laine de roche)
+- Isolation des plafonds et combles aménagés
+- Pose de plaques de plâtre sur ossature isolante
+- Traitement des ponts thermiques aux menuiseries
+- Finitions complètes : enduits, peinture
+
+## Économies et confort
+
+Une bonne isolation peut réduire jusqu'à 30 % les pertes de chaleur. Vous gagnez en confort été comme hiver, tout en valorisant votre bien immobilier à Morbier ou Morez.
+
+## Zones d'intervention
+
+Morbier, Morez, Les Rousses, Saint-Claude, Longchaumois et communes du Haut-Jura.
+
+## Devis gratuit
+
+06 12 60 55 00 — cbnplaque@gmail.com — formulaire sur cbnplaque.com`,
+    content_tr: `CBN Plaque, Morbier ve Haut-Jura'da içten ısı yalıtımı yapar. Duvar, tavan ve çatı katı izolasyonu ile enerji tasarrufu ve konfor sağlıyoruz.
+
+## Neden içten yalıtım?
+
+Jura'daki eski evler ve dağ konutlarında ısı kaybı yaygındır. Dış yalıtım mümkün değilse içten yalıtım (ITI) en pratik çözümdür. Alçıpan ile birlikte temiz, boyaya hazır bitirme elde edilir.
+
+## Hizmetlerimiz
+
+- Duvar kaplama yalıtımı (cam yünü, taş yünü)
+- Tavan ve çatı katı izolasyonu
+- Alçıpan kaplama
+- Pencere çevresi termal köprü giderme
+- Sıva ve boya bitirme
+
+## Bölgeler
+
+Morbier, Morez, Les Rousses, Saint-Claude, Haut-Jura, Jura (39).
+
+## Teklif
+
+06 12 60 55 00 — ücretsiz keşif.`
+  },
+  {
+    id: 'deco',
+    label: 'Décoration intérieure — Morbier',
+    slug: 'decoration-interieure-morbier',
+    title_fr: 'Décoration intérieure à Morbier — niches, placo sur mesure',
+    title_tr: 'Morbier iç dekorasyon — niş, özel alçıpan tasarım',
+    seo_keywords_fr:
+      'décoration intérieure Morbier, niche placo Jura, meuble TV placo Haut-Jura, habillage bois Morez, décoration sur mesure 39',
+    seo_keywords_tr:
+      'Morbier iç dekorasyon, alçıpan niş Jura, TV ünitesi alçıpan Haut-Jura, özel tasarım Morez',
+    content_fr: `CBN Plaque conçoit et réalise vos projets de décoration intérieure à Morbier et dans le Haut-Jura. Meubles TV en placo, niches, bibliothèques encastrées, habillages bois : des créations sur mesure qui structurent et embellissent vos pièces.
+
+## Décoration en plaques de plâtre
+
+Le placo permet des aménagements impossibles avec des meubles standards : niches lumineuses, rangements intégrés, séparations décoratives. Nous étudions chaque projet avec vous pour un résultat harmonieux avec votre intérieur.
+
+## Réalisations décoratives
+
+- Meubles TV et bancs en placo
+- Niches et étagères encastrées
+- Habillages de poutres et colonnes
+- Cloisons décoratives avec jeux de lumière
+- Habillages bois (MDF, lambris)
+- Finitions peinture et enduits décoratifs
+
+## Pour qui ?
+
+Particuliers en rénovation ou construction, commerces et bureaux du Jura (39). De la simple niche à l'aménagement complet d'un salon ou d'une entrée.
+
+## Zone d'intervention
+
+Morbier, Morez, Les Rousses, Saint-Claude, Haut-Jura.
+
+## Contact
+
+Devis gratuit : 06 12 60 55 00 ou formulaire cbnplaque.com`,
+    content_tr: `CBN Plaque, Morbier ve Haut-Jura'da özel iç dekorasyon yapar. Alçıpan TV ünitesi, nişler, gömme raflar ve ahşap kaplamalar ile mekanlarınızı kişiselleştiriyoruz.
+
+## Alçıpan dekorasyon
+
+Standart mobilyaların yapamadığı tasarımlar: aydınlatmalı nişler, entegre depolama, dekoratif bölmeler. Her projeyi sizinle birlikte planlıyoruz.
+
+## Yaptığımız işler
+
+- Alçıpan TV ünitesi ve oturma bankları
+- Niş ve gömme raflar
+- Kiriş ve kolon kaplamaları
+- Dekoratif bölme duvarlar
+- Ahşap kaplama (MDF, lambris)
+- Boya ve dekoratif sıva
 
 ## Bölgeler
 

@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getReviews, getSettings, settingValue } from '@/lib/data';
 import JsonLd from '@/components/JsonLd';
-import { buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
+import { buildBreadcrumbJsonLd, buildPageMetadata, buildReviewsJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,10 +76,15 @@ export default async function AvisPage({ params }: { params: { locale: string } 
     pct: reviews.length ? Math.round((reviews.filter((r) => r.rating === star).length / reviews.length) * 100) : 0
   }));
 
-  const jsonLd = buildBreadcrumbJsonLd(locale, [
-    { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
-    { name: t('title'), path: '/avis' }
-  ]);
+  const jsonLd = [
+    buildBreadcrumbJsonLd(locale, [
+      { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
+      { name: t('title'), path: '/avis' }
+    ]),
+    ...(reviews.length > 0
+      ? [buildReviewsJsonLd(reviews, avg)].filter(Boolean)
+      : [])
+  ];
 
   return (
     <>

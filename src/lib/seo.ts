@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const SITE_URL = 'https://www.cbnplaque.com';
 
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.svg`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og.svg`;
 
 export function localePath(locale: string, path = ''): string {
   const clean = path.startsWith('/') ? path : path ? `/${path}` : '';
@@ -104,12 +104,11 @@ export function buildWebSiteJsonLd(locale: string) {
     '@type': 'WebSite',
     name: 'CBN Plaque',
     url: absoluteUrl(locale),
-    inLanguage: locale === 'tr' ? 'tr-TR' : 'fr-FR',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${SITE_URL}/services?q={search_term_string}`,
-      'query-input': 'required name=search_term_string'
-    }
+    description:
+      locale === 'tr'
+        ? 'Morbier ve Haut-Jura alçıpan, boya ve dekorasyon ustası'
+        : 'Plaquiste et peintre à Morbier — plâtrerie, peinture et décoration Haut-Jura',
+    inLanguage: locale === 'tr' ? 'tr-TR' : 'fr-FR'
   };
 }
 
@@ -188,18 +187,25 @@ export function buildArticleJsonLd(input: {
   slug: string;
   title: string;
   description: string;
+  datePublished?: string;
 }) {
+  const url = absoluteUrl(input.locale, `/${input.slug}`);
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: input.title,
     description: input.description.slice(0, 300),
-    url: absoluteUrl(input.locale, `/${input.slug}`),
-    author: { '@type': 'Organization', name: 'CBN Plaque' },
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    datePublished: input.datePublished ?? '2025-06-01',
+    dateModified: new Date().toISOString().split('T')[0],
+    image: DEFAULT_OG_IMAGE,
+    author: { '@type': 'Organization', name: 'CBN Plaque', url: SITE_URL },
     publisher: {
       '@type': 'Organization',
       name: 'CBN Plaque',
-      url: SITE_URL
+      url: SITE_URL,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` }
     },
     inLanguage: input.locale === 'tr' ? 'tr-TR' : 'fr-FR'
   };
@@ -243,6 +249,61 @@ export function buildServiceListJsonLd(
         provider: { '@type': 'LocalBusiness', name: 'CBN Plaque' },
         areaServed: 'Haut-Jura, Jura, Morbier'
       }
+    }))
+  };
+}
+
+export function buildGuidesListJsonLd(
+  locale: string,
+  pages: { slug: string; title: string }[]
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: locale === 'tr' ? 'Rehberler & ipuçları' : 'Guides & conseils CBN Plaque',
+    itemListElement: pages.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: p.title,
+      url: absoluteUrl(locale, `/${p.slug}`)
+    }))
+  };
+}
+
+export function buildReviewsJsonLd(
+  reviews: { name: string; rating: number; body: string }[],
+  avgRating: number
+) {
+  if (reviews.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'CBN Plaque',
+    url: SITE_URL,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Morbier',
+      postalCode: '39400',
+      addressCountry: 'FR'
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: avgRating,
+      reviewCount: reviews.length,
+      bestRating: 5,
+      worstRating: 1
+    },
+    review: reviews.slice(0, 10).map((r) => ({
+      '@type': 'Review',
+      author: { '@type': 'Person', name: r.name },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1
+      },
+      reviewBody: r.body.slice(0, 500)
     }))
   };
 }

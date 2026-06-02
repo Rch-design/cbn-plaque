@@ -9,6 +9,7 @@ import { getSettings, getPages, settingValue } from '@/lib/data';
 import { canonicalFromPathname } from '@/lib/seo';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import LocaleHtmlLang from '@/components/LocaleHtmlLang';
 import ThemeStyle from '@/components/ThemeStyle';
 import Tracker from '@/components/Tracker';
 import AdBanner from '@/components/AdBanner';
@@ -56,6 +57,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <LocaleHtmlLang locale={locale} />
       <ThemeStyle />
       <AdSenseLoader />
       <Tracker />

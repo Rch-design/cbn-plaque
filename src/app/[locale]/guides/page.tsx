@@ -4,7 +4,8 @@ import { Link } from '@/i18n/navigation';
 import { getPages } from '@/lib/data';
 import BlogPostCard from '@/components/BlogPostCard';
 import JsonLd from '@/components/JsonLd';
-import { buildBreadcrumbJsonLd, buildFaqJsonLd, buildPageMetadata } from '@/lib/seo';
+import { buildBreadcrumbJsonLd, buildFaqJsonLd, buildGuidesListJsonLd, buildPageMetadata } from '@/lib/seo';
+import { localized } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,18 @@ export default async function GuidesPage({ params }: { params: { locale: string 
       { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
       { name: t('title'), path: '/guides' }
     ]),
-    buildFaqJsonLd(faqItems)
+    buildFaqJsonLd(faqItems),
+    ...(pages.length > 0
+      ? [
+          buildGuidesListJsonLd(
+            locale,
+            pages.map((p) => ({
+              slug: p.slug,
+              title: localized(p as unknown as Record<string, unknown>, 'title', locale)
+            }))
+          )
+        ]
+      : [])
   ];
 
   return (
