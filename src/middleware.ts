@@ -5,17 +5,37 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
   const host = request.headers.get('host') ?? '';
+  const pathname = url.pathname;
 
-  // www olmayan → www (canonical domain)
+  // HTTP → HTTPS
+  const proto = request.headers.get('x-forwarded-proto');
+  if (proto === 'http') {
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
+  // cbnplaque.com → www.cbnplaque.com
   if (host === 'cbnplaque.com') {
-    const url = request.nextUrl.clone();
     url.host = 'www.cbnplaque.com';
     url.protocol = 'https:';
     return NextResponse.redirect(url, 301);
   }
 
-  return intlMiddleware(request);
+  // /fr/* tekrar eden URL → canonical path (SEO)
+  if (pathname === '/fr' || pathname.startsWith('/fr/')) {
+    const stripped = pathname.replace(/^\/fr/, '') || '/';
+    url.pathname = stripped;
+    return NextResponse.redirect(url, 301);
+  }
+
+  const response = intlMiddleware(request);
+  response.headers.set('x-pathname', pathname);
+  if (url.searchParams.has('_rsc')) {
+    response.headers.set('X-Robots-Tag', 'noindex');
+  }
+  return response;
 }
 
 export const config = {

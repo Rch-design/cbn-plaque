@@ -13,6 +13,17 @@ export function absoluteUrl(locale: string, path = ''): string {
   return `${SITE_URL}${p === '/' ? '' : p}`;
 }
 
+/** Pathname → tek canonical URL (www, https, /fr yok) */
+export function canonicalFromPathname(pathname: string): string {
+  let path = pathname.split('?')[0] || '/';
+
+  if (path.startsWith('/fr/')) path = path.slice(3) || '/';
+  else if (path === '/fr') path = '/';
+
+  if (path === '/' || path === '') return SITE_URL;
+  return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 export interface LocalBusinessInput {
   name?: string;
   description: string;
@@ -131,7 +142,8 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       canonical: url,
       languages: {
         'fr-FR': absoluteUrl('fr', path),
-        'tr-TR': absoluteUrl('tr', path)
+        'tr-TR': absoluteUrl('tr', path),
+        'x-default': absoluteUrl('fr', path)
       }
     },
     openGraph: {

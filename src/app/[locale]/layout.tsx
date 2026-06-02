@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { getSettings, settingValue } from '@/lib/data';
+import { canonicalFromPathname } from '@/lib/seo';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ThemeStyle from '@/components/ThemeStyle';
@@ -12,6 +15,20 @@ import AdBanner from '@/components/AdBanner';
 import GoogleAdSticky from '@/components/GoogleAdSticky';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const headersList = headers();
+  const pathname = headersList.get('x-pathname') ?? '/';
+  const canonical = canonicalFromPathname(pathname);
+
+  return {
+    alternates: { canonical }
+  };
+}
 
 export default async function LocaleLayout({
   children,
