@@ -3,10 +3,6 @@ import type { ReactNode } from 'react';
 import Script from 'next/script';
 import './globals.css';
 
-const GOOGLE_SITE_VERIFICATION =
-  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ??
-  'GVVOExB0uTBHn4oNCCPh8fbAnTqH-sIeXk13u_St258';
-
 export const metadata: Metadata = {
   title: 'CBN Plaque - Plaquiste & Peintre Morbier | Haut-Jura',
   description:
@@ -28,9 +24,6 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     type: 'website',
   },
-  ...(GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: GOOGLE_SITE_VERIFICATION } }
-    : {}),
 };
 const ADS_PUB_ID = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? '';
 
