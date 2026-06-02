@@ -9,7 +9,15 @@ const messagesCol = process.env.NEXT_PUBLIC_APPWRITE_COL_MESSAGES ?? 'messages';
 
 const notifyEmail = process.env.CONTACT_NOTIFY_EMAIL ?? 'cbnplaque@gmail.com';
 const resendKey = process.env.RESEND_API_KEY ?? '';
-const resendFrom = process.env.RESEND_FROM ?? 'CBN Plaque <onboarding@resend.dev>';
+const resendFromRaw = process.env.RESEND_FROM ?? 'onboarding@resend.dev';
+
+/** "CBN Plaque <onboarding@resend.dev>" → onboarding@resend.dev */
+function parseFromAddress(raw: string): string {
+  const match = raw.match(/<([^>]+)>/);
+  return (match ? match[1] : raw).trim();
+}
+
+const resendFrom = parseFromAddress(resendFromRaw);
 
 function escapeHtml(s: string): string {
   return s
@@ -74,7 +82,13 @@ async function sendNotifyEmail(data: {
     })
   });
 
-  return res.ok;
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('[contact] Resend error:', res.status, errText);
+    return false;
+  }
+
+  return true;
 }
 
 export async function POST(req: NextRequest) {
