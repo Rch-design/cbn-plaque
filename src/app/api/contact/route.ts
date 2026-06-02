@@ -53,8 +53,8 @@ async function sendNotifyEmail(data: {
   email: string;
   phone: string;
   body: string;
-}): Promise<boolean> {
-  if (!resendKey) return false;
+}): Promise<{ ok: boolean; reason?: string }> {
+  if (!resendKey) return { ok: false, reason: 'missing_resend_key' };
 
   const html = `
     <h2>Nouveau message — cbnplaque.com</h2>
@@ -85,10 +85,13 @@ async function sendNotifyEmail(data: {
   if (!res.ok) {
     const errText = await res.text();
     console.error('[contact] Resend error:', res.status, errText);
-    return false;
+    if (errText.includes('only send testing emails to your own email')) {
+      return { ok: false, reason: 'resend_test_mode_wrong_recipient' };
+    }
+    return { ok: false, reason: 'resend_rejected' };
   }
 
-  return true;
+  return { ok: true };
 }
 
 export async function POST(req: NextRequest) {
@@ -126,8 +129,9 @@ export async function POST(req: NextRequest) {
       emailReason = 'missing_resend_key';
     } else {
       try {
-        emailed = await sendNotifyEmail(payload);
-        if (!emailed) emailReason = 'resend_rejected';
+        const mail = await sendNotifyEmail(payload);
+        emailed = mail.ok;
+        if (!emailed) emailReason = mail.reason ?? 'resend_rejected';
       } catch {
         emailReason = 'resend_error';
       }
