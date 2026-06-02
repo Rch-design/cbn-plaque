@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
 import type { SettingDoc } from '@/lib/types';
+import ReviewMessageTemplates from '@/components/admin/ReviewMessageTemplates';
 
 const { databaseId, collections } = appwriteConfig;
 
@@ -129,6 +130,8 @@ export default function SettingsManager() {
           </button>
           {saved && <span className="text-sm font-medium text-green-600">Kaydedildi ✓</span>}
         </div>
+
+        <ReviewMessageTemplates googleReviewUrl={values.google_review_url?.fr ?? ''} />
       </div>
     </div>
   );
