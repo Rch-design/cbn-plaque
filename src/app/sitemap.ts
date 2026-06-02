@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/seo';
+import { getProjects } from '@/lib/data';
 
 const paths = ['', '/services', '/realisations', '/avis', '/contact'] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
@@ -37,6 +38,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'weekly',
     priority: 0.9
   });
+
+  try {
+    const projects = await getProjects(undefined, true);
+    for (const p of projects) {
+      entries.push({
+        url: `${SITE_URL}/realisations/${p.$id}`,
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.6
+      });
+      entries.push({
+        url: `${SITE_URL}/tr/realisations/${p.$id}`,
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.6
+      });
+    }
+  } catch {
+    /* Appwrite unavailable during build — static URLs still listed */
+  }
 
   return entries;
 }

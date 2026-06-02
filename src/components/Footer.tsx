@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { settingValue } from '@/lib/data';
 import type { SettingDoc } from '@/lib/types';
+import { EXTERNAL_LINKS } from '@/lib/seo';
 
 export default function Footer({
   locale,
@@ -66,6 +67,11 @@ export default function Footer({
               </Link>
             </li>
             <li>
+              <Link href="/avis" className="opacity-80 transition hover:opacity-100">
+                {t('nav.avis')}
+              </Link>
+            </li>
+            <li>
               <Link href="/contact" className="opacity-80 transition hover:opacity-100">
                 {t('nav.contact')}
               </Link>
@@ -80,8 +86,17 @@ export default function Footer({
       >
         <div className="container-page flex flex-wrap items-center justify-between gap-3">
           <span>&copy; 2023 CBN Plaque. {t('footer.rights')}</span>
-          <a
-            href="https://www.facebook.com/cbn.plaque"
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={EXTERNAL_LINKS.googleMaps}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 transition hover:bg-white/20"
+            >
+              📍 Google Maps
+            </a>
+            <a
+              href="https://www.facebook.com/cbn.plaque"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 transition hover:bg-white/20"
@@ -92,6 +107,7 @@ export default function Footer({
             </svg>
             cbn.plaque
           </a>
+          </div>
         </div>
       </div>
     </footer>

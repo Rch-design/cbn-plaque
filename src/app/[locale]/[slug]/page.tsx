@@ -1,10 +1,32 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getPage } from '@/lib/data';
 import { localized } from '@/lib/types';
+import { buildPageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params
+}: {
+  params: { locale: string; slug: string };
+}): Promise<Metadata> {
+  const { locale, slug } = params;
+  const page = await getPage(slug);
+  if (!page || !page.is_published) return { title: 'CBN Plaque' };
+
+  const title = localized(page as unknown as Record<string, unknown>, 'title', locale);
+  const content = localized(page as unknown as Record<string, unknown>, 'content', locale);
+
+  return buildPageMetadata({
+    locale,
+    path: `/${slug}`,
+    title: `${title} | CBN Plaque`,
+    description: content.slice(0, 155) || title
+  });
+}
 
 export default async function CustomPage({
   params

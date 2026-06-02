@@ -1,11 +1,30 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getServices } from '@/lib/data';
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import { fileViewUrl } from '@/lib/appwrite';
+import JsonLd from '@/components/JsonLd';
+import { buildBreadcrumbJsonLd, buildPageMetadata, buildServiceListJsonLd, seoImageAlt } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const { locale } = params;
+  const ts = await getTranslations({ locale, namespace: 'services.seo' });
+  return buildPageMetadata({
+    locale,
+    path: '/services',
+    title: ts('title'),
+    description: ts('description'),
+    keywords: ts('keywords')
+  });
+}
 
 const DEFAULT_SERVICES = [
   { icon: 'wall', fr: ['Pose de plaques de plâtre', "Cloisons, doublages, faux-plafonds et aménagement de vos espaces avec une pose nette et durable."], tr: ['Alçıpan montajı', 'Bölme duvarlar, kaplamalar, asma tavanlar ve mekanlarınızın temiz, dayanıklı şekilde düzenlenmesi.'] },
@@ -22,7 +41,27 @@ export default async function ServicesPage({ params }: { params: { locale: strin
   const services = await getServices();
   const idx = locale === 'tr' ? 'tr' : 'fr';
 
+  const serviceList = services.length
+    ? services.map((s) => ({
+        name: localized(s as unknown as Record<string, unknown>, 'title', locale),
+        description: localized(s as unknown as Record<string, unknown>, 'desc', locale)
+      }))
+    : DEFAULT_SERVICES.map((d) => ({
+        name: d[idx as 'fr' | 'tr'][0],
+        description: d[idx as 'fr' | 'tr'][1]
+      }));
+
+  const jsonLd = [
+    buildBreadcrumbJsonLd(locale, [
+      { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
+      { name: t('title'), path: '/services' }
+    ]),
+    buildServiceListJsonLd(locale, serviceList)
+  ];
+
   return (
+    <>
+      <JsonLd data={jsonLd} />
     <div className="container-page py-14">
       <header className="text-center">
         <h1 className="section-title">{t('title')}</h1>
@@ -48,7 +87,11 @@ export default async function ServicesPage({ params }: { params: { locale: strin
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={fileViewUrl(s.image_file_id)}
-                    alt={localized(s as unknown as Record<string, unknown>, 'title', locale)}
+                    alt={seoImageAlt(
+                      localized(s as unknown as Record<string, unknown>, 'title', locale),
+                      locale
+                    )}
+                    loading="lazy"
                     className="h-48 w-full object-cover"
                   />
                 )}
@@ -80,5 +123,6 @@ export default async function ServicesPage({ params }: { params: { locale: strin
         </Link>
       </div>
     </div>
+    </>
   );
 }

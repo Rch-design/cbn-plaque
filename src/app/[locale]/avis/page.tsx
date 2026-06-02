@@ -1,8 +1,27 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getReviews, getSettings, settingValue } from '@/lib/data';
+import JsonLd from '@/components/JsonLd';
+import { buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const { locale } = params;
+  const ts = await getTranslations({ locale, namespace: 'reviews.seo' });
+  return buildPageMetadata({
+    locale,
+    path: '/avis',
+    title: ts('title'),
+    description: ts('description'),
+    keywords: ts('keywords')
+  });
+}
 
 function Stars({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md' | 'lg' }) {
   const sz = size === 'lg' ? 'w-7 h-7' : size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
@@ -57,7 +76,14 @@ export default async function AvisPage({ params }: { params: { locale: string } 
     pct: reviews.length ? Math.round((reviews.filter((r) => r.rating === star).length / reviews.length) * 100) : 0
   }));
 
+  const jsonLd = buildBreadcrumbJsonLd(locale, [
+    { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
+    { name: t('title'), path: '/avis' }
+  ]);
+
   return (
+    <>
+      <JsonLd data={jsonLd} />
     <div className="container-page py-14">
       {/* Başlık */}
       <header className="text-center">
@@ -190,5 +216,6 @@ export default async function AvisPage({ params }: { params: { locale: string } 
         </Link>
       </div>
     </div>
+    </>
   );
 }

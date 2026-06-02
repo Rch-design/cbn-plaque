@@ -2,6 +2,7 @@ import { Link } from '@/i18n/navigation';
 import { fileViewUrl } from '@/lib/appwrite';
 import { localized, type ProjectDoc } from '@/lib/types';
 import { loadCategories, getCatLabel, getCatColorClass } from '@/lib/categories';
+import { seoImageAlt } from '@/lib/seo';
 
 export default async function ProjectCard({
   project,
@@ -26,7 +27,8 @@ export default async function ProjectCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={cover}
-            alt={title}
+            alt={seoImageAlt(title, locale)}
+            loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (

@@ -1,10 +1,29 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getProjects } from '@/lib/data';
 import { loadCategories, getCatLabel } from '@/lib/categories';
 import ProjectCard from '@/components/ProjectCard';
 import { Link } from '@/i18n/navigation';
+import JsonLd from '@/components/JsonLd';
+import { buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const { locale } = params;
+  const ts = await getTranslations({ locale, namespace: 'realisations.seo' });
+  return buildPageMetadata({
+    locale,
+    path: '/realisations',
+    title: ts('title'),
+    description: ts('description'),
+    keywords: ts('keywords')
+  });
+}
 
 export default async function RealisationsPage({
   params,
@@ -30,7 +49,14 @@ export default async function RealisationsPage({
     ? projects
     : projects.filter((p) => p.category === active);
 
+  const jsonLd = buildBreadcrumbJsonLd(locale, [
+    { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
+    { name: t('title'), path: '/realisations' }
+  ]);
+
   return (
+    <>
+      <JsonLd data={jsonLd} />
     <div className="container-page py-14">
       <header className="text-center">
         <h1 className="section-title">{t('title')}</h1>
@@ -76,5 +102,6 @@ export default async function RealisationsPage({
         </div>
       )}
     </div>
+    </>
   );
 }

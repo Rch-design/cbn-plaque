@@ -20,7 +20,12 @@
     "empty": "Henüz değerlendirme yok.",
     "ctaTitle": "Hizmetimizden memnun kaldınız mı?",
     "ctaText": "Değerlendirmeniz yeni müşterilere ulaşmamıza yardımcı olur.",
-    "contactUs": "Bize Ulaşın"
+    "contactUs": "Bize Ulaşın",
+    "seo": {
+      "title": "CBN Plaque müşteri yorumları | Morbier alçıpan ustası",
+      "description": "Morbier ve Haut-Jura'daki müşteri değerlendirmeleri. Alçıpan, boya ve dekorasyon — Google'da yorum bırakın.",
+      "keywords": "CBN Plaque yorum, Morbier usta değerlendirme, Google avis"
+    }
   },
   "home": {
     "heroTitle": "Mekanlarınıza hayat verin",
@@ -71,12 +76,22 @@
   "services": {
     "title": "Hizmetlerimiz",
     "subtitle": "Duvar, tavan ve çatı katı için ihtiyacınız olan her şey.",
-    "empty": "Henüz hizmet eklenmedi."
+    "empty": "Henüz hizmet eklenmedi.",
+    "seo": {
+      "title": "Hizmetler | Morbier alçıpan, boya, izolasyon — CBN Plaque",
+      "description": "Morbier ve Haut-Jura'da alçıpan montajı, alçı, boya, dekorasyon ve izolasyon hizmetleri. Ücretsiz teklif.",
+      "keywords": "Morbier alçıpan hizmetleri, Haut-Jura boya, izolasyon Jura 39"
+    }
   },
   "realisations": {
     "title": "Çalışmalarımız",
     "subtitle": "Projelerimizi kategoriye göre keşfedin.",
     "all": "Tümü",
+    "seo": {
+      "title": "Referanslar | Morbier alçıpan ve boya projeleri — CBN Plaque",
+      "description": "Morbier, Morez ve Haut-Jura'da tamamladığımız alçıpan, boya ve dekorasyon projelerinin fotoğrafları.",
+      "keywords": "Morbier referans projeler, alçıpan fotoğrafları Jura, renovasyon Haut-Jura"
+    },
     "categories": {
       "mur": "Duvar",
       "plafond": "Tavan",
@@ -98,7 +113,16 @@
     "success": "Teşekkürler! Mesajınız başarıyla gönderildi.",
     "error": "Bir hata oluştu. Tekrar deneyin veya bizi arayın.",
     "infoTitle": "İletişim bilgileri",
-    "zone": "Hizmet bölgesi"
+    "zone": "Hizmet bölgesi",
+    "seo": {
+      "title": "İletişim | Morbier alçıpan ustası — ücretsiz teklif",
+      "description": "CBN Plaque ile iletişime geçin. Morbier ve Haut-Jura'da ücretsiz teklif. Tel: 06 12 60 55 00.",
+      "keywords": "Morbier usta iletişim, alçıpan teklif Jura, CBN Plaque telefon"
+    },
+    "googleTitle": "Google'da bizi bulun",
+    "googleText": "Google profilimizi görüntüleyin ve işiniz bittikten sonra yorum bırakın — bölgemizde görünürlüğümüze yardımcı olur.",
+    "googleMaps": "Google Maps'te gör",
+    "googleBusiness": "Google Business Profile"
   },
   "footer": {
     "rights": "Tüm hakları saklıdır.",

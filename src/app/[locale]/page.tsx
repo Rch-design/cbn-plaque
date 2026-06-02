@@ -11,6 +11,7 @@ import {
   absoluteUrl,
   buildFaqJsonLd,
   buildLocalBusinessJsonLd,
+  buildPageMetadata,
   buildWebSiteJsonLd
 } from '@/lib/seo';
 
@@ -24,36 +25,13 @@ export async function generateMetadata({
   const { locale } = params;
   const t = await getTranslations({ locale, namespace: 'home.seo' });
 
-  return {
+  return buildPageMetadata({
+    locale,
+    path: '',
     title: t('title'),
     description: t('description'),
-    keywords: t('keywords'),
-    alternates: {
-      canonical: absoluteUrl(locale),
-      languages: {
-        'fr-FR': absoluteUrl('fr'),
-        'tr-TR': absoluteUrl('tr')
-      }
-    },
-    openGraph: {
-      title: t('title'),
-      description: t('description'),
-      url: absoluteUrl(locale),
-      siteName: 'CBN Plaque',
-      locale: locale === 'tr' ? 'tr_TR' : 'fr_FR',
-      type: 'website'
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('title'),
-      description: t('description')
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: { index: true, follow: true }
-    }
-  };
+    keywords: t('keywords')
+  });
 }
 
 export default async function HomePage({ params }: { params: { locale: string } }) {

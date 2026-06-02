@@ -4,14 +4,30 @@ import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'CBN Plaque - Plâtrerie, peinture & décoration',
+  title: 'CBN Plaque - Plaquiste & Peintre Morbier | Haut-Jura',
   description:
-    'Pose de plaques de plâtre, plâtrerie, peinture, décoration et isolation dans le Haut-Jura. Devis gratuit.',
-  icons: {
-    icon: '/favicon.svg'
-  }
+    'Artisan plaquiste et peintre à Morbier dans le Haut-Jura. Pose de plaques de plâtre, peinture intérieure, isolation et décoration. Devis gratuit au 06 12 60 55 00.',
+  keywords:
+    'plaquiste Morbier, peintre Morbier, plâtrerie Haut-Jura, isolation Jura, pose plaque plâtre, décoration intérieure Jura, artisan Morbier, devis plaquiste 39',
+  authors: [{ name: 'CBN Plaque' }],
+  creator: 'CBN Plaque',
+  metadataBase: new URL('https://www.cbnplaque.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'CBN Plaque - Plaquiste & Peintre à Morbier',
+    description:
+      'Artisan plaquiste et peintre à Morbier dans le Haut-Jura. Devis gratuit.',
+    url: 'https://www.cbnplaque.com',
+    siteName: 'CBN Plaque',
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
-
 const ADS_PUB_ID = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? '';
 
 export default function RootLayout({ children }: { children: ReactNode }) {

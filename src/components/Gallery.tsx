@@ -1,8 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { seoImageAlt } from '@/lib/seo';
 
-export default function Gallery({ images, title }: { images: string[]; title: string }) {
+export default function Gallery({
+  images,
+  title,
+  locale = 'fr'
+}: {
+  images: string[];
+  title: string;
+  locale?: string;
+}) {
   const [active, setActive] = useState<number | null>(null);
 
   if (images.length === 0) return null;
@@ -19,7 +28,8 @@ export default function Gallery({ images, title }: { images: string[]; title: st
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={url}
-              alt={`${title} ${i + 1}`}
+              alt={seoImageAlt(title, locale, i)}
+              loading="lazy"
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
           </button>
@@ -51,7 +61,7 @@ export default function Gallery({ images, title }: { images: string[]; title: st
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={images[active]}
-            alt={title}
+            alt={seoImageAlt(title, locale)}
             className="max-h-[85vh] max-w-full rounded-xl object-contain"
             onClick={(e) => e.stopPropagation()}
           />
