@@ -12,9 +12,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'CBN Plaque' }],
   creator: 'CBN Plaque',
   metadataBase: new URL('https://www.cbnplaque.com'),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: 'CBN Plaque - Plaquiste & Peintre à Morbier',
     description:

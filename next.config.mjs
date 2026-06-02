@@ -13,6 +13,9 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // Fransızca varsayılan — /fr/* tekrar eden URL'leri birleştir (SEO)
+      { source: '/fr', destination: '/', permanent: true },
+      { source: '/fr/:path*', destination: '/:path*', permanent: true },
       // Eski statik dosyalar → anasayfa
       { source: '/index.html',        destination: '/', permanent: true },
       { source: '/index.php',         destination: '/', permanent: true },
