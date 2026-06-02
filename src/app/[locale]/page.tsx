@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { getServices, getProjects, getSettings, getPages, settingValue } from '@/lib/data';
+import { getServices, getProjects, getSettings, settingValue } from '@/lib/data';
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import ProjectCard from '@/components/ProjectCard';
-import BlogPostCard from '@/components/BlogPostCard';
 import { fileViewUrl } from '@/lib/appwrite';
 import GoogleAdBanner from '@/components/GoogleAdBanner';
 import {
@@ -41,11 +40,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const ts = await getTranslations('home.seo');
   const tf = await getTranslations('home.faq');
 
-  const [services, projects, settings, blogPages] = await Promise.all([
+  const [services, projects, settings] = await Promise.all([
     getServices(),
     getProjects(),
-    getSettings(),
-    getPages(true)
+    getSettings()
   ]);
 
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
@@ -235,27 +233,6 @@ export default async function HomePage({ params }: { params: { locale: string } 
       </section>
 
       <WhySection locale={locale} />
-
-      {blogPages.length > 0 && (
-        <section aria-labelledby="blog-heading" className="container-page py-16">
-          <div className="text-center">
-            <h2 id="blog-heading" className="section-title">
-              {t('blogTitle')}
-            </h2>
-            <p className="mt-2 text-gray-600">{t('blogSubtitle')}</p>
-          </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {blogPages.map((page) => (
-              <BlogPostCard
-                key={page.$id}
-                page={page}
-                locale={locale}
-                readMore={t('readMore')}
-              />
-            ))}
-          </div>
-        </section>
-      )}
 
       {featured.length > 0 && (
         <section aria-labelledby="featured-heading" className="container-page py-16">

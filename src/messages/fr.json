@@ -7,6 +7,7 @@
     "home": "Accueil",
     "services": "Services",
     "realisations": "Réalisations",
+    "guides": "Guides",
     "avis": "Avis",
     "contact": "Contact",
     "admin": "Admin",
@@ -27,6 +28,21 @@
       "keywords": "avis plaquiste Morbier, avis peintre Jura, CBN Plaque avis Google"
     }
   },
+  "guides": {
+    "title": "Guides & conseils",
+    "subtitle": "Conseils pratiques sur la plâtrerie, la peinture et la rénovation dans le Haut-Jura.",
+    "badge": "Blog · Morbier · Jura (39)",
+    "readMore": "Lire l'article",
+    "empty": "Aucun article pour le moment.",
+    "ctaTitle": "Un projet en tête ?",
+    "ctaText": "Devis gratuit pour vos travaux de plâtrerie, peinture ou combles à Morbier.",
+    "ctaButton": "Demander un devis",
+    "seo": {
+      "title": "Guides plâtrerie & peinture Morbier | CBN Plaque Haut-Jura",
+      "description": "Conseils et guides sur la pose de plaques de plâtre, la peinture intérieure et la rénovation de combles à Morbier et dans le Haut-Jura (39).",
+      "keywords": "guide plaquiste Morbier, conseils peinture Haut-Jura, rénovation combles Jura, articles plâtrerie 39"
+    }
+  },
   "home": {
     "heroTitle": "Donnez vie à vos espaces",
     "heroSubtitle": "Pose de plaques de plâtre, plâtrerie, peinture, décoration et isolation. Travail soigné pour particuliers et professionnels dans le Haut-Jura.",
@@ -37,9 +53,6 @@
     "featuredTitle": "Réalisations récentes",
     "featuredSubtitle": "Quelques projets dont nous sommes fiers.",
     "viewAll": "Voir toutes les réalisations",
-    "blogTitle": "Guides & conseils",
-    "blogSubtitle": "Conseils pratiques sur la plâtrerie, la peinture et la rénovation dans le Haut-Jura.",
-    "readMore": "Lire l'article",
     "whyTitle": "Pourquoi nous choisir",
     "why": {
       "quality": "Travail de qualité",
@@ -162,7 +175,9 @@
     "ctaText": "Devis gratuit et réponse rapide pour vos travaux de plâtrerie, peinture ou décoration.",
     "ctaButton": "Demander un devis",
     "servicesLink": "Voir nos services",
+    "guidesLink": "Tous les guides",
     "homeLink": "Accueil",
+    "contactLink": "Contact",
     "realisationsLink": "Nos réalisations →"
   },
   "admin": {

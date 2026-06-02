@@ -83,11 +83,14 @@ export default async function CustomPage({
         </aside>
 
         <nav className="mt-8 flex flex-wrap gap-4 text-sm">
-          <Link href="/" className="text-brand-600 hover:underline">
-            ← {t('homeLink')}
+          <Link href="/guides" className="text-brand-600 hover:underline">
+            ← {t('guidesLink')}
           </Link>
-          <Link href="/realisations" className="text-brand-600 hover:underline">
-            {t('realisationsLink')}
+          <Link href="/" className="text-brand-600 hover:underline">
+            {t('homeLink')}
+          </Link>
+          <Link href="/contact" className="text-brand-600 hover:underline">
+            {t('contactLink')}
           </Link>
         </nav>
       </article>

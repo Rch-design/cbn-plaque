@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/seo';
 import { SEO_PAGE_SLUGS } from '@/lib/page-templates';
 
-const paths = ['', '/services', '/realisations', '/avis', '/contact'] as const;
+const paths = ['', '/services', '/realisations', '/guides', '/avis', '/contact'] as const;
 
 /** Statik sitemap — Appwrite bagimliligi yok, Google her zaman okuyabilir */
 export default function sitemap(): MetadataRoute.Sitemap {

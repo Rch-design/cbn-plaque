@@ -71,6 +71,11 @@ export default function Footer({
               </Link>
             </li>
             <li>
+              <Link href="/guides" className="opacity-80 transition hover:opacity-100">
+                {t('nav.guides')}
+              </Link>
+            </li>
+            <li>
               <Link href="/avis" className="opacity-80 transition hover:opacity-100">
                 {t('nav.avis')}
               </Link>

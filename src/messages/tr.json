@@ -7,6 +7,7 @@
     "home": "Anasayfa",
     "services": "Hizmetler",
     "realisations": "Referanslar",
+    "guides": "Rehberler",
     "avis": "Değerlendirmeler",
     "contact": "İletişim",
     "admin": "Yönetim",
@@ -27,6 +28,21 @@
       "keywords": "CBN Plaque yorum, Morbier usta değerlendirme, Google avis"
     }
   },
+  "guides": {
+    "title": "Rehberler & ipuçları",
+    "subtitle": "Haut-Jura'da alçıpan, boya ve renovasyon hakkında pratik bilgiler.",
+    "badge": "Blog · Morbier · Jura (39)",
+    "readMore": "Makaleyi oku",
+    "empty": "Henüz makale yok.",
+    "ctaTitle": "Projeniz mi var?",
+    "ctaText": "Morbier'de alçıpan, boya veya çatı katı işleri için ücretsiz teklif.",
+    "ctaButton": "Teklif iste",
+    "seo": {
+      "title": "Alçıpan & boya rehberleri Morbier | CBN Plaque Haut-Jura",
+      "description": "Morbier ve Haut-Jura'da alçıpan montajı, iç boya ve çatı katı renovasyonu hakkında rehberler ve ipuçları.",
+      "keywords": "Morbier alçıpan rehber, Haut-Jura boya ipuçları, çatı katı renovasyon Jura, alçıpan makaleleri"
+    }
+  },
   "home": {
     "heroTitle": "Mekanlarınıza hayat verin",
     "heroSubtitle": "Alçıpan montajı, alçı işleri, boya, dekorasyon ve izolasyon. Haut-Jura bölgesinde bireysel ve kurumsal müşteriler için özenli işçilik.",
@@ -37,9 +53,6 @@
     "featuredTitle": "Son çalışmalar",
     "featuredSubtitle": "Gurur duyduğumuz bazı projeler.",
     "viewAll": "Tüm çalışmaları gör",
-    "blogTitle": "Rehberler & ipuçları",
-    "blogSubtitle": "Haut-Jura'da alçıpan, boya ve renovasyon hakkında pratik bilgiler.",
-    "readMore": "Makaleyi oku",
     "whyTitle": "Neden biz",
     "why": {
       "quality": "Kaliteli işçilik",
@@ -162,7 +175,9 @@
     "ctaText": "Alçıpan, boya veya dekorasyon işleriniz için ücretsiz teklif ve hızlı yanıt.",
     "ctaButton": "Teklif iste",
     "servicesLink": "Hizmetlerimiz",
+    "guidesLink": "Tüm rehberler",
     "homeLink": "Anasayfa",
+    "contactLink": "İletişim",
     "realisationsLink": "Referanslarımız →"
   },
   "admin": {
