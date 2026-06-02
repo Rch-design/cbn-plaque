@@ -10,7 +10,8 @@
     "setup:appwrite": "node scripts/setup-appwrite.mjs",
     "migrate:attributes": "node scripts/migrate-new-attributes.mjs",
     "setup:reviews": "node scripts/add-reviews-collection.mjs",
-    "fix:analytics": "node scripts/fix-analytics-permissions.mjs"
+    "fix:analytics": "node scripts/fix-analytics-permissions.mjs",
+    "seed:seo-pages": "node scripts/seed-seo-pages.mjs"
   },
   "dependencies": {
     "appwrite": "^16.0.2",

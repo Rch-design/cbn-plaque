@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/seo';
+import { SEO_PAGE_SLUGS } from '@/lib/page-templates';
 
 const paths = ['', '/services', '/realisations', '/avis', '/contact'] as const;
 
@@ -38,6 +39,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'weekly',
     priority: 0.9
   });
+
+  for (const slug of SEO_PAGE_SLUGS) {
+    entries.push({
+      url: `${SITE_URL}/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.75,
+      alternates: {
+        languages: {
+          fr: `${SITE_URL}/${slug}`,
+          tr: `${SITE_URL}/tr/${slug}`
+        }
+      }
+    });
+    entries.push({
+      url: `${SITE_URL}/tr/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.65
+    });
+  }
 
   return entries;
 }

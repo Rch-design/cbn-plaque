@@ -37,6 +37,9 @@
     "featuredTitle": "Réalisations récentes",
     "featuredSubtitle": "Quelques projets dont nous sommes fiers.",
     "viewAll": "Voir toutes les réalisations",
+    "blogTitle": "Guides & conseils",
+    "blogSubtitle": "Conseils pratiques sur la plâtrerie, la peinture et la rénovation dans le Haut-Jura.",
+    "readMore": "Lire l'article",
     "whyTitle": "Pourquoi nous choisir",
     "why": {
       "quality": "Travail de qualité",
@@ -138,7 +141,8 @@
   },
   "footer": {
     "rights": "Tous droits réservés.",
-    "madeWith": "Plâtrerie, peinture et décoration dans le Jura."
+    "madeWith": "Plâtrerie, peinture et décoration dans le Jura.",
+    "guidesTitle": "Guides"
   },
   "cookies": {
     "title": "Cookies et confidentialité",

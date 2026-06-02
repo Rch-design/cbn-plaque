@@ -1,16 +1,19 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { settingValue } from '@/lib/data';
-import type { SettingDoc } from '@/lib/types';
+import type { PageDoc, SettingDoc } from '@/lib/types';
+import { localized } from '@/lib/types';
 import { EXTERNAL_LINKS } from '@/lib/seo';
 import CookieSettingsLink from '@/components/CookieSettingsLink';
 
 export default function Footer({
   locale,
-  settings
+  settings,
+  pages = []
 }: {
   locale: string;
   settings: Record<string, SettingDoc>;
+  pages?: PageDoc[];
 }) {
   const t = useTranslations();
 
@@ -23,7 +26,7 @@ export default function Footer({
       className="mt-16"
       style={{ backgroundColor: 'var(--c-footer-bg)', color: 'var(--c-footer-text)' }}
     >
-      <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
             <span
@@ -79,6 +82,24 @@ export default function Footer({
             </li>
           </ul>
         </div>
+
+        {pages.length > 0 && (
+          <div>
+            <h3 className="font-semibold text-white">{t('footer.guidesTitle')}</h3>
+            <ul className="mt-3 space-y-2 text-sm">
+              {pages.map((page) => {
+                const title = localized(page as unknown as Record<string, unknown>, 'title', locale);
+                return (
+                  <li key={page.$id}>
+                    <Link href={`/${page.slug}`} className="opacity-80 transition hover:opacity-100">
+                      {title}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div

@@ -37,6 +37,9 @@
     "featuredTitle": "Son çalışmalar",
     "featuredSubtitle": "Gurur duyduğumuz bazı projeler.",
     "viewAll": "Tüm çalışmaları gör",
+    "blogTitle": "Rehberler & ipuçları",
+    "blogSubtitle": "Haut-Jura'da alçıpan, boya ve renovasyon hakkında pratik bilgiler.",
+    "readMore": "Makaleyi oku",
     "whyTitle": "Neden biz",
     "why": {
       "quality": "Kaliteli işçilik",
@@ -138,7 +141,8 @@
   },
   "footer": {
     "rights": "Tüm hakları saklıdır.",
-    "madeWith": "Jura bölgesinde alçı, boya ve dekorasyon."
+    "madeWith": "Jura bölgesinde alçı, boya ve dekorasyon.",
+    "guidesTitle": "Rehberler"
   },
   "cookies": {
     "title": "Çerezler ve gizlilik",
