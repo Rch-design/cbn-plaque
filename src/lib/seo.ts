@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 export const SITE_URL = 'https://www.cbnplaque.com';
 
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.svg`;
+
 export function localePath(locale: string, path = ''): string {
   const clean = path.startsWith('/') ? path : path ? `/${path}` : '';
   if (locale === 'fr') return clean || '/';
@@ -152,12 +154,14 @@ export function buildPageMetadata(input: PageMetaInput): Metadata {
       url,
       siteName: 'CBN Plaque',
       locale: locale === 'tr' ? 'tr_TR' : 'fr_FR',
-      type: 'website' as const
+      type: 'website' as const,
+      images: [{ url: DEFAULT_OG_IMAGE, alt: 'CBN Plaque — Plaquiste Morbier' }]
     },
     twitter: {
       card: 'summary_large_image' as const,
       title,
-      description
+      description,
+      images: [DEFAULT_OG_IMAGE]
     },
     robots: { index: true, follow: true }
   };
@@ -175,6 +179,26 @@ export function buildBreadcrumbJsonLd(
       position: i + 1,
       name: item.name,
       item: absoluteUrl(locale, item.path)
+    }))
+  };
+}
+
+export function buildProjectListJsonLd(
+  locale: string,
+  projects: { id: string; title: string }[]
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name:
+      locale === 'tr'
+        ? 'CBN Plaque referans projeleri — Morbier'
+        : 'Réalisations CBN Plaque — plaquiste Morbier',
+    itemListElement: projects.slice(0, 30).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: p.title,
+      url: absoluteUrl(locale, `/realisations/${p.id}`)
     }))
   };
 }

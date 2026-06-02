@@ -6,6 +6,7 @@ import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import { fileViewUrl } from '@/lib/appwrite';
 import JsonLd from '@/components/JsonLd';
+import SeoIntroBlock from '@/components/SeoIntroBlock';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildServiceListJsonLd, seoImageAlt } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,7 @@ const DEFAULT_SERVICES = [
 export default async function ServicesPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
   const t = await getTranslations('services');
+  const ts = await getTranslations({ locale, namespace: 'services.seo' });
   const tc = await getTranslations('home');
   const services = await getServices();
   const idx = locale === 'tr' ? 'tr' : 'fr';
@@ -62,13 +64,21 @@ export default async function ServicesPage({ params }: { params: { locale: strin
   return (
     <>
       <JsonLd data={jsonLd} />
-    <div className="container-page py-14">
+    <article className="container-page py-14">
       <header className="text-center">
-        <h1 className="section-title">{t('title')}</h1>
+        <h1 className="section-title">{ts('h1')}</h1>
         <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
       </header>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
+      <SeoIntroBlock
+        introTitle={ts('introTitle')}
+        intro1={ts('intro1')}
+        intro2={ts('intro2')}
+        zonesTitle={ts('zonesTitle')}
+        zones={ts('zones')}
+      />
+
+      <div className="grid gap-6 md:grid-cols-2">
         {services.length === 0
           ? DEFAULT_SERVICES.map((d) => (
               <article key={d.icon} className="flex gap-5 rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100">
@@ -122,7 +132,7 @@ export default async function ServicesPage({ params }: { params: { locale: strin
           {tc('ctaButton')}
         </Link>
       </div>
-    </div>
+    </article>
     </>
   );
 }

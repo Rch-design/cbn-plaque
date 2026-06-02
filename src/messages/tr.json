@@ -80,7 +80,13 @@
     "seo": {
       "title": "Hizmetler | Morbier alçıpan, boya, izolasyon — CBN Plaque",
       "description": "Morbier ve Haut-Jura'da alçıpan montajı, alçı, boya, dekorasyon ve izolasyon hizmetleri. Ücretsiz teklif.",
-      "keywords": "Morbier alçıpan hizmetleri, Haut-Jura boya, izolasyon Jura 39"
+      "keywords": "Morbier alçıpan hizmetleri, Haut-Jura boya, izolasyon Jura 39",
+      "h1": "Morbier'de alçıpan ve boya hizmetleri — Haut-Jura (39)",
+      "introTitle": "Jura bölgesinde alçı, boya ve dekorasyon",
+      "intro1": "CBN Plaque; Morbier ve Haut-Jura'da alçıpan montajı, alçı işleri, iç mekan boyası, özel dekorasyon ve ısı yalıtımı sunar.",
+      "intro2": "Bireysel ve kurumsal müşteriler için bölme duvar, asma tavan, çatı katı, boya bitirme ve alçıpan mobilya. 48 saat içinde ücretsiz teklif.",
+      "zonesTitle": "Hizmet bölgeleri",
+      "zones": "Morbier, Morez, Les Rousses, Saint-Claude, Haut-Jura, Jura (39)"
     }
   },
   "realisations": {
@@ -90,7 +96,11 @@
     "seo": {
       "title": "Referanslar | Morbier alçıpan ve boya projeleri — CBN Plaque",
       "description": "Morbier, Morez ve Haut-Jura'da tamamladığımız alçıpan, boya ve dekorasyon projelerinin fotoğrafları.",
-      "keywords": "Morbier referans projeler, alçıpan fotoğrafları Jura, renovasyon Haut-Jura"
+      "keywords": "Morbier referans projeler, alçıpan fotoğrafları Jura, renovasyon Haut-Jura",
+      "h1": "Morbier referans projeleri — alçıpan ve boya fotoğrafları",
+      "introTitle": "Haut-Jura'daki projelerimiz",
+      "intro1": "Morbier, Morez, Les Rousses ve Jura (39) bölgesinde tamamladığımız alçıpan, boya ve dekorasyon projelerini inceleyin. Duvar, tavan, çatı katı ve iç mekan yenilemeleri.",
+      "intro2": "Her projede temiz işçilik, zamanında teslim ve kaliteli malzeme kullanıyoruz."
     },
     "categories": {
       "mur": "Duvar",
@@ -117,7 +127,9 @@
     "seo": {
       "title": "İletişim | Morbier alçıpan ustası — ücretsiz teklif",
       "description": "CBN Plaque ile iletişime geçin. Morbier ve Haut-Jura'da ücretsiz teklif. Tel: 06 12 60 55 00.",
-      "keywords": "Morbier usta iletişim, alçıpan teklif Jura, CBN Plaque telefon"
+      "keywords": "Morbier usta iletişim, alçıpan teklif Jura, CBN Plaque telefon",
+      "h1": "Morbier alçıpan ustası iletişim — ücretsiz teklif",
+      "intro1": "Morbier, Morez ve Jura (39) bölgesinde alçıpan, boya veya dekorasyon işleriniz için ücretsiz teklif alın. Telefon, e-posta veya form ile hızlı yanıt."
     },
     "googleTitle": "Google'da bizi bulun",
     "googleText": "Google profilimizi görüntüleyin ve işiniz bittikten sonra yorum bırakın — bölgemizde görünürlüğümüze yardımcı olur.",

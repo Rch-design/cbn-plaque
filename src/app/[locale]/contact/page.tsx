@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { getSettings, settingValue } from '@/lib/data';
 import ContactForm from '@/components/ContactForm';
 import JsonLd from '@/components/JsonLd';
+import SeoIntroBlock from '@/components/SeoIntroBlock';
 import {
   buildBreadcrumbJsonLd,
   buildLocalBusinessJsonLd,
@@ -32,6 +33,7 @@ export async function generateMetadata({
 export default async function ContactPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
   const t = await getTranslations('contact');
+  const ts = await getTranslations({ locale, namespace: 'contact.seo' });
   const settings = await getSettings();
 
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
@@ -65,11 +67,13 @@ export default async function ContactPage({ params }: { params: { locale: string
   return (
     <>
       <JsonLd data={jsonLd} />
-      <div className="container-page py-14">
+      <article className="container-page py-14">
         <header className="text-center">
-          <h1 className="section-title">{t('title')}</h1>
+          <h1 className="section-title">{ts('h1')}</h1>
           <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
         </header>
+
+        <SeoIntroBlock intro1={ts('intro1')} />
 
         <div className="mt-12 grid gap-8 lg:grid-cols-5">
           <div className="space-y-6 lg:col-span-2">
@@ -149,7 +153,7 @@ export default async function ContactPage({ params }: { params: { locale: string
             <ContactForm />
           </div>
         </div>
-      </div>
+      </article>
     </>
   );
 }

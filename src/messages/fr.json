@@ -80,7 +80,13 @@
     "seo": {
       "title": "Services plaquiste & peintre Morbier | Plâtrerie, peinture, isolation",
       "description": "Pose de plaques de plâtre, plâtrerie, peinture intérieure, décoration et isolation à Morbier et dans le Haut-Jura. Devis gratuit CBN Plaque.",
-      "keywords": "services plaquiste Morbier, peinture intérieure Jura, plâtrerie Haut-Jura, isolation combles 39"
+      "keywords": "services plaquiste Morbier, peinture intérieure Jura, plâtrerie Haut-Jura, isolation combles 39",
+      "h1": "Services de plaquiste et peintre à Morbier — Haut-Jura (39)",
+      "introTitle": "Plâtrerie, peinture et décoration dans le Jura",
+      "intro1": "CBN Plaque propose la pose de plaques de plâtre, la plâtrerie, la peinture intérieure, la décoration sur mesure et l'isolation thermique à Morbier et dans tout le Haut-Jura.",
+      "intro2": "Particuliers et professionnels : cloisons, faux-plafonds, combles, finitions peinture et aménagements en placo. Devis gratuit sous 48 h.",
+      "zonesTitle": "Zones d'intervention",
+      "zones": "Morbier, Morez, Les Rousses, Saint-Claude, Haut-Jura, Jura (39)"
     }
   },
   "realisations": {
@@ -90,7 +96,11 @@
     "seo": {
       "title": "Réalisations plaquiste Morbier | Photos de chantiers CBN Plaque",
       "description": "Photos de nos travaux de plâtrerie, peinture et décoration à Morbier, Morez et dans le Haut-Jura. Cloisons, plafonds, rénovations intérieures.",
-      "keywords": "réalisations plaquiste Morbier, photos chantier Jura, travaux placo Haut-Jura, rénovation intérieure 39"
+      "keywords": "réalisations plaquiste Morbier, photos chantier Jura, travaux placo Haut-Jura, rénovation intérieure 39",
+      "h1": "Réalisations plaquiste et peintre à Morbier — photos de chantiers",
+      "introTitle": "Nos projets dans le Haut-Jura",
+      "intro1": "Parcourez nos réalisations de plâtrerie, peinture et décoration à Morbier, Morez, Les Rousses et dans le département du Jura (39). Cloisons, plafonds, combles et rénovations intérieures.",
+      "intro2": "Chaque projet est réalisé avec soin : finitions propres, délais respectés et matériaux de qualité."
     },
     "categories": {
       "mur": "Mur",
@@ -117,7 +127,9 @@
     "seo": {
       "title": "Contact plaquiste Morbier | Devis gratuit CBN Plaque",
       "description": "Contactez CBN Plaque pour un devis gratuit à Morbier et dans le Haut-Jura. Tél. 06 12 60 55 00 — plâtrerie, peinture, décoration.",
-      "keywords": "contact plaquiste Morbier, devis peintre Jura, artisan 39400 téléphone"
+      "keywords": "contact plaquiste Morbier, devis peintre Jura, artisan 39400 téléphone",
+      "h1": "Contact plaquiste Morbier — devis gratuit Haut-Jura",
+      "intro1": "Demandez un devis gratuit pour vos travaux de plâtrerie, peinture ou décoration à Morbier, Morez et dans le Jura (39). Réponse rapide par téléphone, e-mail ou formulaire."
     },
     "googleTitle": "Trouvez-nous sur Google",
     "googleText": "Consultez notre fiche Google et laissez un avis après vos travaux — cela nous aide à être visible dans votre région.",

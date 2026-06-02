@@ -2,10 +2,12 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getProjects } from '@/lib/data';
 import { loadCategories, getCatLabel } from '@/lib/categories';
+import { localized } from '@/lib/types';
 import ProjectCard from '@/components/ProjectCard';
 import { Link } from '@/i18n/navigation';
 import JsonLd from '@/components/JsonLd';
-import { buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
+import SeoIntroBlock from '@/components/SeoIntroBlock';
+import { buildBreadcrumbJsonLd, buildPageMetadata, buildProjectListJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +36,7 @@ export default async function RealisationsPage({
 }) {
   const { locale } = params;
   const t = await getTranslations('realisations');
+  const ts = await getTranslations({ locale, namespace: 'realisations.seo' });
 
   const [cats, projects] = await Promise.all([
     loadCategories(),
@@ -49,19 +52,34 @@ export default async function RealisationsPage({
     ? projects
     : projects.filter((p) => p.category === active);
 
-  const jsonLd = buildBreadcrumbJsonLd(locale, [
-    { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
-    { name: t('title'), path: '/realisations' }
-  ]);
+  const jsonLd = [
+    buildBreadcrumbJsonLd(locale, [
+      { name: locale === 'tr' ? 'Anasayfa' : 'Accueil', path: '' },
+      { name: t('title'), path: '/realisations' }
+    ]),
+    ...(filtered.length > 0
+      ? [
+          buildProjectListJsonLd(
+            locale,
+            filtered.map((p) => ({
+              id: p.$id,
+              title: localized(p as unknown as Record<string, unknown>, 'title', locale)
+            }))
+          )
+        ]
+      : [])
+  ];
 
   return (
     <>
       <JsonLd data={jsonLd} />
-    <div className="container-page py-14">
+    <article className="container-page py-14">
       <header className="text-center">
-        <h1 className="section-title">{t('title')}</h1>
+        <h1 className="section-title">{ts('h1')}</h1>
         <p className="mx-auto mt-3 max-w-2xl text-gray-600">{t('subtitle')}</p>
       </header>
+
+      <SeoIntroBlock introTitle={ts('introTitle')} intro1={ts('intro1')} intro2={ts('intro2')} />
 
       {/* Kategori filtresi */}
       <div className="mt-8 flex flex-wrap justify-center gap-2">
@@ -101,7 +119,7 @@ export default async function RealisationsPage({
           ))}
         </div>
       )}
-    </div>
+    </article>
     </>
   );
 }
