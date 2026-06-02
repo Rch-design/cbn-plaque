@@ -4,7 +4,6 @@ import { getSettings, settingValue } from '@/lib/data';
 import ContactForm from '@/components/ContactForm';
 import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
-import RelatedGuides from '@/components/RelatedGuides';
 import {
   buildBreadcrumbJsonLd,
   buildLocalBusinessJsonLd,
@@ -154,8 +153,6 @@ export default async function ContactPage({ params }: { params: { locale: string
             <ContactForm />
           </div>
         </div>
-
-        <RelatedGuides locale={locale} limit={2} />
       </article>
     </>
   );

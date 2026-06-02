@@ -7,7 +7,6 @@ import ProjectCard from '@/components/ProjectCard';
 import { Link } from '@/i18n/navigation';
 import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
-import RelatedGuides from '@/components/RelatedGuides';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildProjectListJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -120,8 +119,6 @@ export default async function RealisationsPage({
           ))}
         </div>
       )}
-
-      <RelatedGuides locale={locale} limit={2} />
     </article>
     </>
   );

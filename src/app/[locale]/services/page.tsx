@@ -7,7 +7,6 @@ import ServiceIcon from '@/components/ServiceIcon';
 import { fileViewUrl } from '@/lib/appwrite';
 import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
-import RelatedGuides from '@/components/RelatedGuides';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildServiceListJsonLd, seoImageAlt } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -125,8 +124,6 @@ export default async function ServicesPage({ params }: { params: { locale: strin
               </article>
             ))}
       </div>
-
-      <RelatedGuides locale={locale} limit={3} />
 
       <div className="mt-12 rounded-3xl bg-gradient-to-r from-ocean-600 to-brand-600 px-8 py-10 text-center text-white">
         <h2 className="text-2xl font-extrabold">{tc('ctaTitle')}</h2>

@@ -6,7 +6,6 @@ import { getPage } from '@/lib/data';
 import { localized } from '@/lib/types';
 import { getTemplateKeywords } from '@/lib/page-templates';
 import PageContent from '@/components/PageContent';
-import RelatedGuides from '@/components/RelatedGuides';
 import JsonLd from '@/components/JsonLd';
 import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
 
@@ -82,8 +81,6 @@ export default async function CustomPage({
             </Link>
           </div>
         </aside>
-
-        <RelatedGuides locale={locale} excludeSlug={slug} limit={2} />
 
         <nav className="mt-8 flex flex-wrap gap-4 text-sm">
           <Link href="/guides" className="text-brand-600 hover:underline">
