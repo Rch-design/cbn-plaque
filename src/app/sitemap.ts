@@ -63,30 +63,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  const projects = await getProjects(undefined, true);
-  for (const project of projects) {
-    const path = `/realisations/${project.$id}`;
-    const updated = (project as { $updatedAt?: string }).$updatedAt;
-    const lastModified = updated ? new Date(updated) : now;
+  try {
+    const projects = await getProjects(undefined, true);
+    for (const project of projects) {
+      const path = `/realisations/${project.$id}`;
+      const updated = (project as { $updatedAt?: string }).$updatedAt;
+      const lastModified = updated ? new Date(updated) : now;
 
-    entries.push({
-      url: `${SITE_URL}${path}`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-      alternates: {
-        languages: {
-          fr: `${SITE_URL}${path}`,
-          tr: `${SITE_URL}/tr${path}`
+      entries.push({
+        url: `${SITE_URL}${path}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.7,
+        alternates: {
+          languages: {
+            fr: `${SITE_URL}${path}`,
+            tr: `${SITE_URL}/tr${path}`
+          }
         }
-      }
-    });
-    entries.push({
-      url: `${SITE_URL}/tr${path}`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.6
-    });
+      });
+      entries.push({
+        url: `${SITE_URL}/tr${path}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.6
+      });
+    }
+  } catch {
+    // Appwrite erisilemezse statik URL'ler yine doner
   }
 
   return entries;
