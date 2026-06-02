@@ -152,6 +152,15 @@
     "label": "WhatsApp ile yazın",
     "defaultMessage": "Merhaba CBN Plaque, işler için teklif almak istiyorum."
   },
+  "customPage": {
+    "badge": "CBN Plaque · Morbier · Haut-Jura",
+    "ctaTitle": "Benzer bir projeniz mi var?",
+    "ctaText": "Alçıpan, boya veya dekorasyon işleriniz için ücretsiz teklif ve hızlı yanıt.",
+    "ctaButton": "Teklif iste",
+    "servicesLink": "Hizmetlerimiz",
+    "homeLink": "Anasayfa",
+    "realisationsLink": "Referanslarımız →"
+  },
   "admin": {
     "loginTitle": "Yönetim paneli",
     "email": "E-posta",

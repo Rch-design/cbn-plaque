@@ -152,6 +152,15 @@
     "label": "Nous écrire sur WhatsApp",
     "defaultMessage": "Bonjour CBN Plaque, je souhaiterais un devis pour des travaux."
   },
+  "customPage": {
+    "badge": "CBN Plaque · Morbier · Haut-Jura",
+    "ctaTitle": "Un projet similaire ?",
+    "ctaText": "Devis gratuit et réponse rapide pour vos travaux de plâtrerie, peinture ou décoration.",
+    "ctaButton": "Demander un devis",
+    "servicesLink": "Voir nos services",
+    "homeLink": "Accueil",
+    "realisationsLink": "Nos réalisations →"
+  },
   "admin": {
     "loginTitle": "Espace administration",
     "email": "E-mail",

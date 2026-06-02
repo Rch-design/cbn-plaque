@@ -183,6 +183,28 @@ export function buildBreadcrumbJsonLd(
   };
 }
 
+export function buildArticleJsonLd(input: {
+  locale: string;
+  slug: string;
+  title: string;
+  description: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: input.title,
+    description: input.description.slice(0, 300),
+    url: absoluteUrl(input.locale, `/${input.slug}`),
+    author: { '@type': 'Organization', name: 'CBN Plaque' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'CBN Plaque',
+      url: SITE_URL
+    },
+    inLanguage: input.locale === 'tr' ? 'tr-TR' : 'fr-FR'
+  };
+}
+
 export function buildProjectListJsonLd(
   locale: string,
   projects: { id: string; title: string }[]

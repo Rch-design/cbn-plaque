@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
 import type { PageDoc } from '@/lib/types';
+import { PAGE_TEMPLATES, getPageTemplate } from '@/lib/page-templates';
 
 const { databaseId, collections } = appwriteConfig;
 
@@ -16,10 +17,16 @@ const empty = {
   sort_order: 0
 };
 
+const RESERVED_SLUGS = new Set([
+  'services', 'contact', 'realisations', 'avis', 'admin', 'api', 'tr', 'fr'
+]);
+
+type EditState = PageDoc | 'new' | { template: string } | null;
+
 export default function PagesManager() {
   const [items, setItems] = useState<PageDoc[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<PageDoc | 'new' | null>(null);
+  const [editing, setEditing] = useState<EditState>(null);
 
   async function load() {
     setLoading(true);
@@ -49,9 +56,15 @@ export default function PagesManager() {
   if (loading) return <p className="text-gray-500">Yükleniyor...</p>;
 
   if (editing) {
+    const page = editing !== 'new' && !('template' in editing) ? editing : null;
+    const templateId = typeof editing === 'object' && editing !== null && 'template' in editing
+      ? editing.template
+      : undefined;
+
     return (
       <PageEditor
-        page={editing === 'new' ? null : editing}
+        page={page}
+        templateId={templateId}
         defaultOrder={items.length}
         onClose={() => setEditing(null)}
         onSaved={() => { setEditing(null); load(); }}
@@ -69,9 +82,28 @@ export default function PagesManager() {
       </div>
 
       <p className="mb-4 rounded-xl bg-ocean-50 px-4 py-2 text-sm text-ocean-700">
-        Buradan oluşturduğunuz sayfalar sitede <strong>/sayfalar/slug-adi</strong> adresinde görünür.
-        Örn: slug = <em>hakkimizda</em> → site.com/hakkimizda
+        Sayfalar sitede <strong>/slug-adi</strong> adresinde görünür.
+        Örn: slug = <em>pose-plaques-platre-morbier</em> → cbnplaque.com/pose-plaques-platre-morbier
       </p>
+
+      <div className="mb-6 rounded-2xl border border-dashed border-brand-300 bg-brand-50/50 p-4">
+        <p className="mb-3 text-sm font-bold text-gray-800">SEO şablonları (hazır içerik)</p>
+        <div className="flex flex-wrap gap-2">
+          {PAGE_TEMPLATES.map((tpl) => (
+            <button
+              key={tpl.id}
+              type="button"
+              onClick={() => setEditing({ template: tpl.id })}
+              className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-brand-700 shadow-sm ring-1 ring-brand-200 hover:bg-brand-100"
+            >
+              {tpl.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-gray-500">
+          Şablona tıklayın → içerik otomatik dolar → düzenleyip kaydedin.
+        </p>
+      </div>
 
       {items.length === 0 && <p className="text-gray-500">Henüz sayfa yok.</p>}
 
@@ -100,23 +132,50 @@ export default function PagesManager() {
 }
 
 function PageEditor({
-  page, defaultOrder, onClose, onSaved
+  page, templateId, defaultOrder, onClose, onSaved
 }: {
   page: PageDoc | null;
+  templateId?: string;
   defaultOrder: number;
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState(
-    page
-      ? { slug: page.slug, title_fr: page.title_fr, title_tr: page.title_tr, content_fr: page.content_fr, content_tr: page.content_tr, is_published: page.is_published, sort_order: page.sort_order }
-      : { ...empty, sort_order: defaultOrder }
-  );
+  const tpl = templateId ? getPageTemplate(templateId) : undefined;
+
+  const [form, setForm] = useState(() => {
+    if (page) {
+      return {
+        slug: page.slug,
+        title_fr: page.title_fr,
+        title_tr: page.title_tr,
+        content_fr: page.content_fr,
+        content_tr: page.content_tr,
+        is_published: page.is_published,
+        sort_order: page.sort_order
+      };
+    }
+    if (tpl) {
+      return {
+        slug: tpl.slug,
+        title_fr: tpl.title_fr,
+        title_tr: tpl.title_tr,
+        content_fr: tpl.content_fr,
+        content_tr: tpl.content_tr,
+        is_published: true,
+        sort_order: defaultOrder
+      };
+    }
+    return { ...empty, sort_order: defaultOrder };
+  });
   const [busy, setBusy] = useState(false);
 
   async function save() {
     if (!form.slug || !form.title_fr) { alert('Slug ve Fransızca başlık zorunlu.'); return; }
     const cleanSlug = form.slug.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    if (RESERVED_SLUGS.has(cleanSlug)) {
+      alert('Bu slug rezerve edilmiş (services, contact vb.). Başka bir slug seçin.');
+      return;
+    }
     setBusy(true);
     try {
       const data = { ...form, slug: cleanSlug };
@@ -132,7 +191,9 @@ function PageEditor({
   return (
     <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-gray-200">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">{page ? 'Sayfayı düzenle' : 'Yeni sayfa'}</h2>
+        <h2 className="text-lg font-bold text-gray-900">
+          {page ? 'Sayfayı düzenle' : tpl ? `SEO şablonu: ${tpl.label}` : 'Yeni sayfa'}
+        </h2>
         <button onClick={onClose} className="text-sm font-semibold text-gray-500 hover:text-gray-800">← Geri</button>
       </div>
 
@@ -164,11 +225,12 @@ function PageEditor({
 
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">İçerik (Fransızca)</label>
-          <textarea value={form.content_fr} onChange={(e) => setForm({ ...form, content_fr: e.target.value })} rows={8} className="input-field resize-y font-mono text-sm" placeholder="Sayfa içeriğini buraya yazın..." />
+          <textarea value={form.content_fr} onChange={(e) => setForm({ ...form, content_fr: e.target.value })} rows={12} className="input-field resize-y font-mono text-sm" placeholder="## Başlık&#10;Paragraf metni..." />
+          <p className="mt-1 text-xs text-gray-400">## başlık, ### alt başlık, - madde listesi. Boş satır = yeni paragraf.</p>
         </div>
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">İçerik (Türkçe)</label>
-          <textarea value={form.content_tr} onChange={(e) => setForm({ ...form, content_tr: e.target.value })} rows={8} className="input-field resize-y font-mono text-sm" placeholder="Sayfa içeriğini buraya yazın..." />
+          <textarea value={form.content_tr} onChange={(e) => setForm({ ...form, content_tr: e.target.value })} rows={12} className="input-field resize-y font-mono text-sm" placeholder="## Başlık..." />
         </div>
       </div>
 

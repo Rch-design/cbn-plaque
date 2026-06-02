@@ -6,6 +6,20 @@ import { databases, appwriteConfig, ID } from '@/lib/appwrite';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
+async function saveViaClient(data: {
+  name: string;
+  email: string;
+  phone: string;
+  body: string;
+}) {
+  await databases.createDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.messages,
+    ID.unique(),
+    { ...data, is_read: false }
+  );
+}
+
 export default function ContactForm() {
   const t = useTranslations('contact');
   const [status, setStatus] = useState<Status>('idle');
@@ -15,24 +29,44 @@ export default function ContactForm() {
     const form = e.currentTarget;
     const data = new FormData(form);
 
+    const payload = {
+      name: String(data.get('name') ?? '').trim(),
+      email: String(data.get('email') ?? '').trim(),
+      phone: String(data.get('phone') ?? '').trim(),
+      body: String(data.get('message') ?? '').trim()
+    };
+
     setStatus('sending');
     try {
-      await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.messages,
-        ID.unique(),
-        {
-          name: String(data.get('name') ?? ''),
-          email: String(data.get('email') ?? ''),
-          phone: String(data.get('phone') ?? ''),
-          body: String(data.get('message') ?? ''),
-          is_read: false
-        }
-      );
-      setStatus('success');
-      form.reset();
-    } catch {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = (await res.json()) as { ok?: boolean; fallback?: boolean };
+
+      if (json.ok) {
+        setStatus('success');
+        form.reset();
+        return;
+      }
+
+      if (json.fallback) {
+        await saveViaClient(payload);
+        setStatus('success');
+        form.reset();
+        return;
+      }
+
       setStatus('error');
+    } catch {
+      try {
+        await saveViaClient(payload);
+        setStatus('success');
+        form.reset();
+      } catch {
+        setStatus('error');
+      }
     }
   }
 
