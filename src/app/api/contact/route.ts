@@ -51,7 +51,7 @@ async function saveMessage(
 async function sendNotifyEmail(
   cfg: ReturnType<typeof getMailConfig>,
   data: { name: string; email: string; phone: string; body: string }
-): Promise<{ ok: boolean; reason?: string; detail?: string }> {
+): Promise<{ ok: boolean; reason?: string; detail?: string; resendId?: string }> {
   if (!cfg.resendKey) return { ok: false, reason: 'missing_resend_key' };
 
   const html = `
@@ -99,7 +99,8 @@ async function sendNotifyEmail(
     return { ok: false, reason: 'resend_rejected', detail };
   }
 
-  return { ok: true };
+  const resBody = (await res.json()) as { id?: string };
+  return { ok: true, resendId: resBody.id };
 }
 
 export async function POST(req: NextRequest) {
@@ -135,12 +136,15 @@ export async function POST(req: NextRequest) {
     let emailed = false;
     let emailReason: string | undefined;
     let emailDetail: string | undefined;
+    let resendId: string | undefined;
 
     const mail = await sendNotifyEmail(cfg, payload);
     emailed = mail.ok;
     if (!emailed) {
       emailReason = mail.reason ?? 'resend_rejected';
       emailDetail = mail.detail;
+    } else {
+      resendId = mail.resendId;
     }
 
     return NextResponse.json({
@@ -148,6 +152,7 @@ export async function POST(req: NextRequest) {
       emailed,
       emailReason,
       mailTo: cfg.notifyEmail,
+      ...(resendId ? { resendId } : {}),
       ...(emailDetail ? { emailDetail } : {})
     });
   } catch {
