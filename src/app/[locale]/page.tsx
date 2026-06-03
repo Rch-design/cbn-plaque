@@ -5,7 +5,7 @@ import { getServices, getProjects, getSettings, settingValue } from '@/lib/data'
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import ProjectCard from '@/components/ProjectCard';
-import { fileViewUrl, resolveLogoUrl } from '@/lib/appwrite';
+import { fileViewUrl } from '@/lib/appwrite';
 import GoogleAdBanner from '@/components/GoogleAdBanner';
 import {
   absoluteUrl,
@@ -53,7 +53,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const heroSubtitle = settingValue(settings, heroSubKey, locale, '') || t('heroSubtitle');
 
   const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
-  const logoUrl = resolveLogoUrl(logoFileId);
+  const logoUrl = logoFileId ? fileViewUrl(logoFileId) : undefined;
   const pageUrl = absoluteUrl(locale);
 
   const jsonLd = [
@@ -88,12 +88,6 @@ export default async function HomePage({ params }: { params: { locale: string } 
         <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,white_2px,transparent_2px)] [background-size:32px_32px]" />
         <div className="container-page relative grid gap-8 py-20 lg:grid-cols-2 lg:py-28">
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={logoUrl}
-              alt="CBN Plaque — Morbier"
-              className="mb-6 h-24 w-auto max-w-[220px] object-contain drop-shadow-lg sm:h-28"
-            />
             <p className="inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-semibold backdrop-blur">
               {ts('badge')}
             </p>

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
-import { resolveLogoUrl } from '@/lib/appwrite';
+import { fileViewUrl } from '@/lib/appwrite';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header({
@@ -20,7 +21,6 @@ export default function Header({
   const t = useTranslations('nav');
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [logoError, setLogoError] = useState(false);
 
   const links = [
     { href: '/', label: t('home') },
@@ -36,8 +36,7 @@ export default function Header({
     return pathname.startsWith(href);
   }
 
-  const logoUrl = resolveLogoUrl(logoFileId);
-  const showLogo = Boolean(logoUrl) && !logoError;
+  const logoUrl = logoFileId ? fileViewUrl(logoFileId) : '';
 
   return (
     <header
@@ -50,27 +49,21 @@ export default function Header({
     >
       <div className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          {showLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt="CBN Plaque"
-              className="h-12 w-auto max-w-[160px] object-contain"
-              onError={() => setLogoError(true)}
-            />
+          {logoUrl ? (
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white p-0.5 shadow">
+              <Image src={logoUrl} alt="Logo" width={40} height={40} className="h-full w-full object-contain" unoptimized />
+            </span>
           ) : (
-            <>
-              <span
-                className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
-                style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
-              >
-                CBN
-              </span>
-              <span className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--c-header-text)' }}>
-                CBN <span style={{ color: 'var(--c-primary)' }}>Plaque</span>
-              </span>
-            </>
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
+              style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
+            >
+              CBN
+            </span>
           )}
+          <span className="text-lg font-extrabold tracking-tight" style={{ color: 'var(--c-header-text)' }}>
+            CBN <span style={{ color: 'var(--c-primary)' }}>Plaque</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

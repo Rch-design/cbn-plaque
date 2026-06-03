@@ -29,12 +29,13 @@ export default function Footer({
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="CBN Plaque"
-              className="h-10 w-auto max-w-[120px] object-contain"
-            />
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
+              style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
+            >
+              CBN
+            </span>
+            <span className="text-lg font-extrabold text-white">CBN Plaque</span>
           </div>
           <p className="mt-3 text-sm opacity-60">{t('footer.madeWith')}</p>
         </div>
