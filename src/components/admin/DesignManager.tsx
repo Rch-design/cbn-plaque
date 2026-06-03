@@ -362,7 +362,7 @@ export default function DesignManager() {
                         <img
                           src={logoPreview}
                           alt="Logo"
-                          className="h-20 w-20 rounded-xl object-contain border border-gray-200 p-1"
+                          className="h-20 w-auto max-w-[200px] rounded-3xl object-contain border border-gray-200 p-1"
                         />
                         <div className="flex flex-col gap-2">
                           <button

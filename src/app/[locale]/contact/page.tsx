@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getSettings, settingValue } from '@/lib/data';
 import ContactForm from '@/components/ContactForm';
+import SiteLogo from '@/components/SiteLogo';
 import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
 import {
@@ -81,6 +82,7 @@ export default async function ContactPage({ params }: { params: { locale: string
               className="rounded-2xl p-6 text-white"
               style={{ background: 'linear-gradient(135deg, var(--c-hero-from), var(--c-hero-to))' }}
             >
+              <SiteLogo logoFileId={logoFileId} size="lg" className="mb-4" />
               <h2 className="text-xl font-bold">{t('infoTitle')}</h2>
               <ul className="mt-6 space-y-5">
                 {info.map((item) => (

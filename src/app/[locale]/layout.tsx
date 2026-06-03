@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
-import { getSettings, getPages, settingValue } from '@/lib/data';
+import { getSettings, getPages, settingValue, logoFileIdFromSettings } from '@/lib/data';
 import { canonicalFromPathname } from '@/lib/seo';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -53,7 +53,7 @@ export default async function LocaleLayout({
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
 
-  const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
+  const logoFileId = logoFileIdFromSettings(settings);
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -65,7 +65,7 @@ export default async function LocaleLayout({
         <Header locale={locale} phone={phone} email={email} logoFileId={logoFileId} />
         <AdBanner pageSlug="all" />
         <main className="flex-1">{children}</main>
-        <Footer locale={locale} settings={settings} pages={blogPages} />
+        <Footer locale={locale} settings={settings} pages={blogPages} logoFileId={logoFileId} />
         <GoogleAdSticky />
         <WhatsAppButton phone={phone} />
         <CookieConsent />

@@ -1,25 +1,29 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { settingValue } from '@/lib/data';
+import { settingValue, logoFileIdFromSettings } from '@/lib/data';
 import type { PageDoc, SettingDoc } from '@/lib/types';
 import { localized } from '@/lib/types';
 import { EXTERNAL_LINKS } from '@/lib/seo';
 import CookieSettingsLink from '@/components/CookieSettingsLink';
+import SiteLogo from '@/components/SiteLogo';
 
 export default function Footer({
   locale,
   settings,
-  pages = []
+  pages = [],
+  logoFileId = ''
 }: {
   locale: string;
   settings: Record<string, SettingDoc>;
   pages?: PageDoc[];
+  logoFileId?: string;
 }) {
   const t = useTranslations();
 
   const phone = settingValue(settings, 'phone', locale, '06 12 60 55 00');
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
   const zone  = settingValue(settings, 'zone', locale, 'Morbier / Jura');
+  const resolvedLogoId = logoFileIdFromSettings(settings, logoFileId);
 
   return (
     <footer
@@ -28,15 +32,7 @@ export default function Footer({
     >
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl font-black text-white"
-              style={{ background: 'linear-gradient(135deg, var(--c-primary), var(--c-secondary))' }}
-            >
-              CBN
-            </span>
-            <span className="text-lg font-extrabold text-white">CBN Plaque</span>
-          </div>
+          <SiteLogo logoFileId={resolvedLogoId} size="md" className="text-white" />
           <p className="mt-3 text-sm opacity-60">{t('footer.madeWith')}</p>
         </div>
 

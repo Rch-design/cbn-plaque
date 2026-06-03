@@ -131,3 +131,15 @@ export function settingValue(
   const localized = locale === 'tr' ? doc.value_tr : doc.value_fr;
   return localized || doc.value_fr || fallback;
 }
+
+/** Appwrite design_logo_file_id — header/footer ayni kaynak */
+export function logoFileIdFromSettings(
+  settings: Record<string, SettingDoc>,
+  override = ''
+): string {
+  const fromProp = override?.trim();
+  if (fromProp) return fromProp;
+  const doc = settings['design_logo_file_id'];
+  if (!doc) return '';
+  return (doc.value_fr || doc.value_tr || '').trim();
+}
