@@ -10,7 +10,7 @@ import {
   buildPageMetadata,
   EXTERNAL_LINKS
 } from '@/lib/seo';
-import { fileViewUrl } from '@/lib/appwrite';
+import { resolveLogoUrl } from '@/lib/appwrite';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +40,7 @@ export default async function ContactPage({ params }: { params: { locale: string
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
   const zone = settingValue(settings, 'zone', locale, 'Morbier / Jura');
   const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
-  const logoUrl = logoFileId ? fileViewUrl(logoFileId) : undefined;
+  const logoUrl = resolveLogoUrl(logoFileId);
 
   const jsonLd = [
     buildBreadcrumbJsonLd(locale, [

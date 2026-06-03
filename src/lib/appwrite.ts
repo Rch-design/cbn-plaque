@@ -31,4 +31,10 @@ export function fileViewUrl(fileId: string): string {
   return `${appwriteConfig.endpoint}/storage/buckets/${appwriteConfig.bucketId}/files/${fileId}/view?project=${appwriteConfig.projectId}`;
 }
 
+/** Appwrite logo ID yoksa statik public/logo.png */
+export function resolveLogoUrl(fileId?: string | null): string {
+  if (fileId?.trim()) return fileViewUrl(fileId.trim());
+  return '/logo.png';
+}
+
 export { ID, Query, Permission, Role } from 'appwrite';

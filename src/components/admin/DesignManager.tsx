@@ -17,8 +17,8 @@ async function fetchDesignSettings(): Promise<Record<string, string>> {
   return map;
 }
 
-/* ── Tek ayar kaydetme ── */
-async function saveSetting(key: string, value: string, existingId?: string) {
+/* ── Tek ayar kaydetme — document ID döner */
+async function saveSetting(key: string, value: string, existingId?: string): Promise<string> {
   if (existingId) {
     await databases.updateDocument(
       appwriteConfig.databaseId,
@@ -26,15 +26,16 @@ async function saveSetting(key: string, value: string, existingId?: string) {
       existingId,
       { value_fr: value, value_tr: value }
     );
-  } else {
-    await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.settings,
-      ID.unique(),
-      { key, value_fr: value, value_tr: value },
-      [Permission.read(Role.any())]
-    );
+    return existingId;
   }
+  const doc = await databases.createDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.settings,
+    ID.unique(),
+    { key, value_fr: value, value_tr: value },
+    [Permission.read(Role.any())]
+  );
+  return doc.$id;
 }
 
 /* ── Tüm ayar ID'lerini çekme (update için gerekli) ── */
@@ -196,8 +197,8 @@ export default function DesignManager() {
       ]);
       const newId = uploaded.$id;
       setLogoFileId(newId);
-      await saveSetting('design_logo_file_id', newId, docIds['design_logo_file_id']);
-      setDocIds((prev) => ({ ...prev, design_logo_file_id: prev['design_logo_file_id'] ?? '' }));
+      const docId = await saveSetting('design_logo_file_id', newId, docIds['design_logo_file_id']);
+      setDocIds((prev) => ({ ...prev, design_logo_file_id: docId }));
     } catch (e) {
       console.error(e);
       alert('Logo yüklenirken hata oluştu.');
