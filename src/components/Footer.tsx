@@ -32,7 +32,12 @@ export default function Footer({
     >
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <SiteLogo logoFileId={resolvedLogoId} size="md" className="text-white" />
+          <SiteLogo
+            logoFileId={resolvedLogoId}
+            size="md"
+            showSiteName
+            className="text-white"
+          />
           <p className="mt-3 text-sm opacity-60">{t('footer.madeWith')}</p>
         </div>
 
