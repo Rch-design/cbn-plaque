@@ -9,7 +9,11 @@ export const metadata: Metadata = {
     default: 'CBN Plaque - Plaquiste & Peintre Morbier',
     template: '%s'
   },
-  robots: { index: true, follow: true }
+  robots: { index: true, follow: true },
+  icons: {
+    icon: [{ url: '/icon', sizes: '48x48', type: 'image/png' }],
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }]
+  }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
