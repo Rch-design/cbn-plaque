@@ -3,10 +3,10 @@ import { fetchSiteLogoIcon, getSiteLogoIconUrl } from '@/lib/site-icon';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const size = { width: 48, height: 48 };
-export const contentType = 'image/png';
 
-function fallbackIcon() {
+const SIZE = { width: 48, height: 48 };
+
+function fallbackPng() {
   return new ImageResponse(
     (
       <div
@@ -26,12 +26,12 @@ function fallbackIcon() {
         CB
       </div>
     ),
-    { ...size }
+    SIZE
   );
 }
 
-/** Google SERP favicon — SVG desteklenmez, PNG/JPEG gerekir (min 48px) */
-export default async function Icon() {
+/** /icon [slug] ile cakismasin — Google favicon */
+export async function GET() {
   const logoUrl = await getSiteLogoIconUrl();
 
   if (logoUrl) {
@@ -54,7 +54,7 @@ export default async function Icon() {
             <img src={logoUrl} width={48} height={48} alt="" style={{ objectFit: 'cover' }} />
           </div>
         ),
-        { ...size }
+        SIZE
       );
     } catch {
       const direct = await fetchSiteLogoIcon();
@@ -62,5 +62,5 @@ export default async function Icon() {
     }
   }
 
-  return fallbackIcon();
+  return fallbackPng();
 }

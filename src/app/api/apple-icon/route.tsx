@@ -3,10 +3,10 @@ import { getSiteLogoIconUrl } from '@/lib/site-icon';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const size = { width: 180, height: 180 };
-export const contentType = 'image/png';
 
-export default async function AppleIcon() {
+const SIZE = { width: 180, height: 180 };
+
+export async function GET() {
   const logoUrl = await getSiteLogoIconUrl();
 
   if (logoUrl) {
@@ -28,7 +28,7 @@ export default async function AppleIcon() {
           <img src={logoUrl} width={180} height={180} alt="" style={{ objectFit: 'cover' }} />
         </div>
       ),
-      { ...size }
+      SIZE
     );
   }
 
@@ -51,6 +51,6 @@ export default async function AppleIcon() {
         CB
       </div>
     ),
-    { ...size }
+    SIZE
   );
 }

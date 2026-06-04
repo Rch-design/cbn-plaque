@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: [{ url: '/icon', sizes: '48x48', type: 'image/png' }],
-    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }]
+    icon: [{ url: '/api/favicon', sizes: '48x48', type: 'image/png' }],
+    apple: [{ url: '/api/apple-icon', sizes: '180x180', type: 'image/png' }]
   }
 };
 

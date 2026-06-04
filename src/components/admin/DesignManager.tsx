@@ -188,17 +188,18 @@ export default function DesignManager() {
   /* ── Logo yükleme ── */
   async function uploadLogo(file: File) {
     setLogoUploading(true);
+    const previousId = logoFileId;
     try {
-      if (logoFileId) {
-        try { await storage.deleteFile(appwriteConfig.bucketId, logoFileId); } catch (_) {}
-      }
       const uploaded = await storage.createFile(appwriteConfig.bucketId, ID.unique(), file, [
         Permission.read(Role.any())
       ]);
       const newId = uploaded.$id;
-      setLogoFileId(newId);
       const docId = await saveSetting('design_logo_file_id', newId, docIds['design_logo_file_id']);
+      setLogoFileId(newId);
       setDocIds((prev) => ({ ...prev, design_logo_file_id: docId }));
+      if (previousId) {
+        try { await storage.deleteFile(appwriteConfig.bucketId, previousId); } catch (_) {}
+      }
     } catch (e) {
       console.error(e);
       alert('Logo yüklenirken hata oluştu.');

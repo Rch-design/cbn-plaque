@@ -11,12 +11,15 @@ import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from '@/
 
 export const dynamic = 'force-dynamic';
 
+const RESERVED_SLUGS = new Set(['icon', 'apple-icon', 'favicon']);
+
 export async function generateMetadata({
   params
 }: {
   params: { locale: string; slug: string };
 }): Promise<Metadata> {
   const { locale, slug } = params;
+  if (RESERVED_SLUGS.has(slug)) return { title: 'CBN Plaque' };
   const page = await getPage(slug);
   if (!page || !page.is_published) return { title: 'CBN Plaque' };
 
@@ -39,6 +42,7 @@ export default async function CustomPage({
   params: { locale: string; slug: string };
 }) {
   const { locale, slug } = params;
+  if (RESERVED_SLUGS.has(slug)) notFound();
   const t = await getTranslations('customPage');
   const page = await getPage(slug);
 
