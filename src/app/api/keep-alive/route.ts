@@ -7,8 +7,12 @@ export const dynamic = 'force-dynamic';
 const { databaseId, collections } = appwriteConfig;
 
 /**
- * Appwrite ucretsiz plan projeyi hareketsizlikte duraklatir.
- * Gunluk cron bu sorgularla projeyi aktif tutar.
+ * Backend saglik kontrolu.
+ *
+ * NOT: Appwrite ucretsiz planinda proje yalnizca Console'daki gelistirme
+ * etkinligiyle aktif kalir; buradan gelen API sorgulari duraklamayi onlemez
+ * (Appwrite politika degisikligi, Subat 2026). Bu uc nokta bu yuzden sadece
+ * durum raporlar: ok=false ise backend duraklatilmis demektir.
  */
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
