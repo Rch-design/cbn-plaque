@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
+import { adminList, adminCreate, adminUpdate, adminDelete } from '@/lib/admin-client';
 import type { PageDoc } from '@/lib/types';
 import { PAGE_TEMPLATES, getPageTemplate } from '@/lib/page-templates';
-
-const { databaseId, collections } = appwriteConfig;
 
 const empty = {
   slug: '',
@@ -31,11 +29,7 @@ export default function PagesManager() {
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.pages, [
-        Query.orderAsc('sort_order'),
-        Query.limit(100)
-      ]);
-      setItems(res.documents as unknown as PageDoc[]);
+      setItems(await adminList<PageDoc>('pages'));
     } catch {
       setItems([]);
     } finally {
@@ -48,7 +42,7 @@ export default function PagesManager() {
   async function remove(id: string) {
     if (!confirm('Bu sayfayı silmek istediğinize emin misiniz?')) return;
     try {
-      await databases.deleteDocument(databaseId, collections.pages, id);
+      await adminDelete('pages', id);
       await load();
     } catch { alert('Silinemedi.'); }
   }
@@ -180,9 +174,9 @@ function PageEditor({
     try {
       const data = { ...form, slug: cleanSlug };
       if (!page) {
-        await databases.createDocument(databaseId, collections.pages, ID.unique(), data);
+        await adminCreate('pages', data);
       } else {
-        await databases.updateDocument(databaseId, collections.pages, page.$id, data);
+        await adminUpdate('pages', page.$id, data);
       }
       onSaved();
     } catch { alert('Kaydedilemedi.'); setBusy(false); }

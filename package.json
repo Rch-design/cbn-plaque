@@ -7,14 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup:appwrite": "node scripts/setup-appwrite.mjs",
-    "migrate:attributes": "node scripts/migrate-new-attributes.mjs",
-    "setup:reviews": "node scripts/add-reviews-collection.mjs",
-    "fix:analytics": "node scripts/fix-analytics-permissions.mjs",
-    "seed:seo-pages": "node scripts/seed-seo-pages.mjs"
+    "db:setup": "node scripts/d1-setup.mjs",
+    "admin:create": "node scripts/create-admin.mjs",
+    "migrate:export": "node scripts/export-appwrite.mjs",
+    "migrate:import": "node scripts/import-cloudflare.mjs",
+    "seed:seo-pages": "node scripts/seed-seo-pages.mjs",
+    "test:sigv4": "node scripts/sigv4-test.mjs"
   },
   "dependencies": {
-    "appwrite": "^16.0.2",
     "next": "14.2.35",
     "next-intl": "^3.20.0",
     "react": "^18.3.1",
@@ -25,7 +25,6 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
-    "node-appwrite": "^14.0.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4"

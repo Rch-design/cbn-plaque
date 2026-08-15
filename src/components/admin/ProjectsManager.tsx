@@ -2,17 +2,16 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
-  databases, storage, appwriteConfig, fileViewUrl, ID, Query
-} from '@/lib/appwrite';
-import { Permission, Role } from 'appwrite';
+  adminList, adminCreate, adminUpdate, adminDelete,
+  uploadFile, deleteFile,
+  loadCategories, saveCategories
+} from '@/lib/admin-client';
+import { assetUrl } from '@/lib/assets';
 import { type ProjectDoc, type ProjectImageDoc, type ProjectCategory, DEFAULT_CATEGORIES } from '@/lib/types';
 import {
-  loadCategories, saveCategories,
   getCatLabel, getCatColorClass,
   COLOR_OPTIONS, CAT_COLOR_CLASS
 } from '@/lib/categories';
-
-const { databaseId, collections, bucketId } = appwriteConfig;
 
 type View = 'list' | 'editor' | 'categories';
 
@@ -27,13 +26,11 @@ export default function ProjectsManager() {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [projectRes, loadedCats] = await Promise.all([
-      databases.listDocuments(databaseId, collections.projects, [
-        Query.orderAsc('sort_order'), Query.limit(100)
-      ]).catch(() => ({ documents: [] })),
+    const [projects, loadedCats] = await Promise.all([
+      adminList<ProjectDoc>('projects').catch(() => [] as ProjectDoc[]),
       loadCategories()
     ]);
-    setItems(projectRes.documents as unknown as ProjectDoc[]);
+    setItems(projects);
     setCats(loadedCats);
     setLoading(false);
   }, []);
@@ -43,22 +40,21 @@ export default function ProjectsManager() {
   async function remove(project: ProjectDoc) {
     if (!confirm('Bu projeyi ve tüm fotoğraflarını silmek istediğinize emin misiniz?')) return;
     try {
-      const imgs = await databases.listDocuments(databaseId, collections.projectImages, [
-        Query.equal('project_id', project.$id), Query.limit(100)
-      ]);
-      for (const img of imgs.documents as unknown as ProjectImageDoc[]) {
-        await safeDeleteFile(img.file_id);
-        await databases.deleteDocument(databaseId, collections.projectImages, img.$id);
+      const imgs = (await adminList<ProjectImageDoc>('project-images'))
+        .filter((img) => img.project_id === project.$id);
+      // project_images satırları ON DELETE CASCADE ile gider; dosyalar elle silinir
+      await adminDelete('projects', project.$id);
+      for (const img of imgs) {
+        await deleteFile(img.file_id);
       }
-      await safeDeleteFile(project.cover_file_id);
-      await databases.deleteDocument(databaseId, collections.projects, project.$id);
+      await deleteFile(project.cover_file_id);
       await loadAll();
     } catch { alert('Silinemedi.'); }
   }
 
   async function toggleActive(project: ProjectDoc) {
     try {
-      await databases.updateDocument(databaseId, collections.projects, project.$id, {
+      await adminUpdate('projects', project.$id, {
         is_active: !(project.is_active ?? true)
       });
       await loadAll();
@@ -70,8 +66,8 @@ export default function ProjectsManager() {
     if (index === 0) return;
     const [a, b] = [list[index - 1], list[index]];
     await Promise.all([
-      databases.updateDocument(databaseId, collections.projects, a.$id, { sort_order: b.sort_order }),
-      databases.updateDocument(databaseId, collections.projects, b.$id, { sort_order: a.sort_order })
+      adminUpdate('projects', a.$id, { sort_order: b.sort_order }),
+      adminUpdate('projects', b.$id, { sort_order: a.sort_order })
     ]).catch(() => alert('Sıra değiştirilemedi.'));
     await loadAll();
   }
@@ -81,8 +77,8 @@ export default function ProjectsManager() {
     if (index === list.length - 1) return;
     const [a, b] = [list[index], list[index + 1]];
     await Promise.all([
-      databases.updateDocument(databaseId, collections.projects, a.$id, { sort_order: b.sort_order }),
-      databases.updateDocument(databaseId, collections.projects, b.$id, { sort_order: a.sort_order })
+      adminUpdate('projects', a.$id, { sort_order: b.sort_order }),
+      adminUpdate('projects', b.$id, { sort_order: a.sort_order })
     ]).catch(() => alert('Sıra değiştirilemedi.'));
     await loadAll();
   }
@@ -182,7 +178,7 @@ export default function ProjectsManager() {
             <div className="relative aspect-[4/3] bg-gray-100">
               {p.cover_file_id ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={fileViewUrl(p.cover_file_id)} alt={p.title_fr} className="h-full w-full object-cover" />
+                <img src={assetUrl(p.cover_file_id)} alt={p.title_fr} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center text-gray-300">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -433,12 +429,8 @@ function ProjectEditor({
 
   useEffect(() => {
     if (!isNew && project) {
-      databases.listDocuments(databaseId, collections.projectImages, [
-        Query.equal('project_id', project.$id),
-        Query.orderAsc('sort_order'),
-        Query.limit(100)
-      ])
-        .then((r) => setExtras(r.documents as unknown as ProjectImageDoc[]))
+      adminList<ProjectImageDoc>('project-images')
+        .then((rows) => setExtras(rows.filter((r) => r.project_id === project.$id)))
         .catch(() => {});
     }
   }, [project, isNew]);
@@ -448,14 +440,14 @@ function ProjectEditor({
     let firstCover = coverId;
     for (let i = 0; i < files.length; i++) {
       setProgress(`Fotoğraf yükleniyor ${i + 1}/${files.length}…`);
-      const created = await storage.createFile(bucketId, ID.unique(), files[i], [Permission.read(Role.any())]);
+      const key = await uploadFile(files[i], 'projects');
       if (!firstCover) {
-        firstCover = created.$id;
-        setCoverId(created.$id);
+        firstCover = key;
+        setCoverId(key);
       } else {
-        await databases.createDocument(databaseId, collections.projectImages, ID.unique(), {
-          project_id: projectId, file_id: created.$id, sort_order: order++
-        }, [Permission.read(Role.any())]);
+        await adminCreate<ProjectImageDoc>('project-images', {
+          project_id: projectId, file_id: key, sort_order: order++
+        });
       }
     }
     setProgress('');
@@ -468,19 +460,15 @@ function ProjectEditor({
     try {
       const files = fileInput.current?.files;
       if (isNew) {
-        const doc = await databases.createDocument(
-          databaseId, collections.projects, ID.unique(),
-          { ...form, cover_file_id: '' },
-          [Permission.read(Role.any())]
-        );
+        const doc = await adminCreate<ProjectDoc>('projects', { ...form, cover_file_id: '' });
         if (files?.length) {
           const cover = await uploadFiles(doc.$id, files);
-          await databases.updateDocument(databaseId, collections.projects, doc.$id, { cover_file_id: cover });
+          await adminUpdate('projects', doc.$id, { cover_file_id: cover });
         }
       } else {
         let cover = coverId;
         if (files?.length) cover = await uploadFiles(project!.$id, files);
-        await databases.updateDocument(databaseId, collections.projects, project!.$id, {
+        await adminUpdate('projects', project!.$id, {
           ...form, cover_file_id: cover
         });
       }
@@ -493,24 +481,24 @@ function ProjectEditor({
 
   async function deleteExtra(img: ProjectImageDoc) {
     if (!confirm('Bu fotoğrafı silmek istiyor musunuz?')) return;
-    await safeDeleteFile(img.file_id);
-    await databases.deleteDocument(databaseId, collections.projectImages, img.$id);
+    await adminDelete('project-images', img.$id);
+    await deleteFile(img.file_id);
     setExtras((l) => l.filter((x) => x.$id !== img.$id));
   }
 
   async function makeCover(img: ProjectImageDoc) {
     if (isNew) return;
     const oldCover = coverId;
-    await databases.updateDocument(databaseId, collections.projects, project!.$id, { cover_file_id: img.file_id });
-    await databases.updateDocument(databaseId, collections.projectImages, img.$id, { file_id: oldCover || img.file_id });
+    await adminUpdate('projects', project!.$id, { cover_file_id: img.file_id });
+    await adminUpdate('project-images', img.$id, { file_id: oldCover || img.file_id });
     setCoverId(img.file_id);
     setExtras((l) => l.map((x) => x.$id === img.$id ? { ...x, file_id: oldCover || img.file_id } : x));
   }
 
   async function removeCover() {
     if (!coverId || !confirm('Kapak fotoğrafını kaldırmak istiyor musunuz?')) return;
-    await safeDeleteFile(coverId);
-    if (!isNew) await databases.updateDocument(databaseId, collections.projects, project!.$id, { cover_file_id: '' });
+    if (!isNew) await adminUpdate('projects', project!.$id, { cover_file_id: '' });
+    await deleteFile(coverId);
     setCoverId('');
   }
 
@@ -573,7 +561,7 @@ function ProjectEditor({
           {coverId && (
             <div className="relative overflow-hidden rounded-xl ring-2 ring-blue-500">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={fileViewUrl(coverId)} alt="kapak" className="aspect-square w-full object-cover" />
+              <img src={assetUrl(coverId)} alt="kapak" className="aspect-square w-full object-cover" />
               <span className="absolute left-1 top-1 rounded bg-blue-500 px-1.5 py-0.5 text-[10px] font-bold text-white">Kapak</span>
               <button onClick={removeCover} className="absolute right-1 top-1 rounded bg-black/60 px-1 py-0.5 text-[10px] text-white hover:bg-red-700">✕</button>
             </div>
@@ -581,7 +569,7 @@ function ProjectEditor({
           {extras.map((img) => (
             <div key={img.$id} className="relative overflow-hidden rounded-xl ring-1 ring-gray-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={fileViewUrl(img.file_id)} alt="" className="aspect-square w-full object-cover" />
+              <img src={assetUrl(img.file_id)} alt="" className="aspect-square w-full object-cover" />
               <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/60 px-1.5 py-1 text-[10px] text-white">
                 <button onClick={() => makeCover(img)} className="hover:underline">⭐ Kapak</button>
                 <button onClick={() => deleteExtra(img)} className="text-red-300 hover:underline">✕</button>
@@ -621,11 +609,6 @@ function ProjectEditor({
 }
 
 /* ═══════════════════════════════════════════════════════════ Yardımcı */
-async function safeDeleteFile(fileId: string) {
-  if (!fileId) return;
-  try { await storage.deleteFile(bucketId, fileId); } catch { /* ignore */ }
-}
-
 function Field({ label, value, onChange, placeholder, required }: {
   label: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean;
 }) {

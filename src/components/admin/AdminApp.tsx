@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, type FormEvent } from 'react';
-import { account, databases, appwriteConfig, Query } from '@/lib/appwrite';
+import { adminList, login as apiLogin, logout as apiLogout } from '@/lib/admin-client';
 import ServicesManager from './ServicesManager';
 import ProjectsManager from './ProjectsManager';
 import MessagesManager from './MessagesManager';
@@ -11,8 +11,6 @@ import DesignManager from './DesignManager';
 import ReviewsManager from './ReviewsManager';
 import BannersManager from './BannersManager';
 import AnalyticsPanel from './AnalyticsPanel';
-
-const { databaseId, collections } = appwriteConfig;
 
 type Tab = 'projects' | 'services' | 'pages' | 'reviews' | 'banners' | 'messages' | 'settings' | 'design' | 'analytics';
 
@@ -28,31 +26,20 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'design',    label: 'Tasarım',             icon: '🎨' }
 ];
 
-export default function AdminApp() {
-  const [loading, setLoading]       = useState(true);
-  const [authed, setAuthed]         = useState(false);
-  const [email, setEmail]           = useState('');
+/** Oturum sunucuda dogrulanir; initialEmail bos ise giris formu gosterilir. */
+export default function AdminApp({ initialEmail = '' }: { initialEmail?: string }) {
+  const [authed, setAuthed]         = useState(Boolean(initialEmail));
+  const [email, setEmail]           = useState(initialEmail);
   const [tab, setTab]               = useState<Tab>('projects');
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnread = useCallback(async () => {
     try {
-      const res = await databases.listDocuments(databaseId, collections.messages, [
-        Query.equal('is_read', false),
-        Query.limit(100)
-      ]);
-      setUnreadCount(res.total);
+      const messages = await adminList<{ is_read: boolean }>('messages');
+      setUnreadCount(messages.filter((m) => !m.is_read).length);
     } catch {
       setUnreadCount(0);
     }
-  }, []);
-
-  useEffect(() => {
-    account
-      .get()
-      .then((u) => { setAuthed(true); setEmail(u.email); })
-      .catch(() => setAuthed(false))
-      .finally(() => setLoading(false));
   }, []);
 
   // Okunmamış sayısını her 60 saniyede yenile
@@ -69,16 +56,9 @@ export default function AdminApp() {
   }, [tab, fetchUnread]);
 
   async function handleLogout() {
-    try { await account.deleteSession('current'); } catch { /* ignore */ }
+    await apiLogout();
     setAuthed(false);
-  }
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-gray-500">
-        Yükleniyor...
-      </div>
-    );
+    setEmail('');
   }
 
   if (!authed) {
@@ -160,7 +140,7 @@ export default function AdminApp() {
 }
 
 function LoginForm({ onSuccess }: { onSuccess: (email: string) => void }) {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
   const [busy, setBusy]   = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -168,13 +148,16 @@ function LoginForm({ onSuccess }: { onSuccess: (email: string) => void }) {
     const data = new FormData(e.currentTarget);
     const mail = String(data.get('email') ?? '');
     const pass = String(data.get('password') ?? '');
-    setError(false);
+    setError('');
     setBusy(true);
     try {
-      await account.createEmailPasswordSession(mail, pass);
-      onSuccess(mail);
-    } catch {
-      setError(true);
+      onSuccess(await apiLogin(mail, pass));
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message === 'not_configured'
+          ? 'Sunucu ayarlari eksik (ADMIN_SESSION_SECRET / Cloudflare).'
+          : 'E-posta veya şifre hatalı.'
+      );
     } finally {
       setBusy(false);
     }
@@ -199,7 +182,7 @@ function LoginForm({ onSuccess }: { onSuccess: (email: string) => void }) {
             <label className="mb-1 block text-sm font-semibold text-gray-700">Şifre</label>
             <input name="password" type="password" required className="input-field" />
           </div>
-          {error && <p className="text-sm font-medium text-red-600">E-posta veya şifre hatalı.</p>}
+          {error && <p className="text-sm font-medium text-red-600">{error}</p>}
           <button type="submit" disabled={busy} className="btn-primary w-full disabled:opacity-60">
             {busy ? 'Giriş yapılıyor...' : 'Giriş yap'}
           </button>

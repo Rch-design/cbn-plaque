@@ -6,8 +6,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig = {
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: '*.cloud.appwrite.io' },
-      { protocol: 'https', hostname: 'cloud.appwrite.io' }
+      // Cloudflare R2 — ozel alan adi ve r2.dev gelistirme adresi
+      { protocol: 'https', hostname: 'assets.cbnplaque.com' },
+      { protocol: 'https', hostname: '*.r2.dev' },
+      { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' }
     ]
   },
 

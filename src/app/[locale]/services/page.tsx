@@ -4,12 +4,12 @@ import { Link } from '@/i18n/navigation';
 import { getServices } from '@/lib/data';
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildServiceListJsonLd, seoImageAlt } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params
@@ -96,7 +96,7 @@ export default async function ServicesPage({ params }: { params: { locale: strin
                 {s.image_file_id && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={fileViewUrl(s.image_file_id)}
+                    src={assetUrl(s.image_file_id)}
                     alt={seoImageAlt(
                       localized(s as unknown as Record<string, unknown>, 'title', locale),
                       locale

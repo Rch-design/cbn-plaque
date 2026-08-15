@@ -3,14 +3,15 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getProject, getProjectImages } from '@/lib/data';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 import { localized } from '@/lib/types';
-import { loadCategories, getCatLabel, getCatColorClass } from '@/lib/categories';
+import { getCategories } from '@/lib/data';
+import { getCatLabel, getCatColorClass } from '@/lib/categories';
 import Gallery from '@/components/Gallery';
 import JsonLd from '@/components/JsonLd';
 import { absoluteUrl, buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params
@@ -53,13 +54,13 @@ export default async function ProjectDetailPage({
 
   const [imageDocs, cats] = await Promise.all([
     getProjectImages(id),
-    loadCategories()
+    getCategories()
   ]);
 
   const images = [
-    ...(project.cover_file_id ? [fileViewUrl(project.cover_file_id)] : []),
-    ...imageDocs.map((img) => fileViewUrl(img.file_id))
-  ];
+    assetUrl(project.cover_file_id),
+    ...imageDocs.map((img) => assetUrl(img.file_id))
+  ].filter(Boolean);
 
   const title = localized(project as unknown as Record<string, unknown>, 'title', locale);
   const desc = localized(project as unknown as Record<string, unknown>, 'desc', locale);

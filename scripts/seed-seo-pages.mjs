@@ -1,85 +1,45 @@
 /**
- * SEO sablon sayfalarini Appwrite'a yayinlar.
+ * SEO sablon sayfalarini Cloudflare D1'e yayinlar.
  * Kullanim: npm run seed:seo-pages
  */
-import { readFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { Client, Databases, ID, Query } from 'node-appwrite';
+import { randomBytes } from 'node:crypto';
+import { loadEnv, requireEnv, d1 } from './lib/cf.mjs';
 import { PAGE_TEMPLATES } from '../src/lib/seo-pages-data.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-function loadEnv() {
-  const path = join(__dirname, '..', '.env.local');
-  if (!existsSync(path)) return;
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
-    if (!process.env[key]) process.env[key] = val;
-  }
-}
 loadEnv();
+requireEnv('CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_D1_DATABASE_ID', 'CLOUDFLARE_API_TOKEN');
 
-const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
-const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
-const apiKey = process.env.APPWRITE_API_KEY || '';
-const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'main';
-const colId = process.env.NEXT_PUBLIC_APPWRITE_COL_PAGES || 'pages';
+console.log('\nSEO sayfalari yayinlaniyor...\n');
 
-if (!projectId || !apiKey) {
-  console.error('❌ NEXT_PUBLIC_APPWRITE_PROJECT_ID ve APPWRITE_API_KEY gerekli (.env.local)');
-  process.exit(1);
-}
+let order = 0;
+for (const tpl of PAGE_TEMPLATES) {
+  const existing = await d1('SELECT id FROM pages WHERE slug = ? LIMIT 1', [tpl.slug]);
+  const values = [
+    tpl.title_fr,
+    tpl.title_tr,
+    tpl.content_fr,
+    tpl.content_tr,
+    order++
+  ];
 
-const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
-const databases = new Databases(client);
-
-async function findBySlug(slug) {
-  const res = await databases.listDocuments(databaseId, colId, [
-    Query.equal('slug', slug),
-    Query.limit(1)
-  ]);
-  return res.documents[0] ?? null;
-}
-
-async function run() {
-  console.log('\n📄 CBN Plaque — SEO sayfalari yayinlaniyor...\n');
-
-  let order = 0;
-  for (const tpl of PAGE_TEMPLATES) {
-    const payload = {
-      slug: tpl.slug,
-      title_fr: tpl.title_fr,
-      title_tr: tpl.title_tr,
-      content_fr: tpl.content_fr,
-      content_tr: tpl.content_tr,
-      is_published: true,
-      sort_order: order++
-    };
-
-    const existing = await findBySlug(tpl.slug);
-    if (existing) {
-      await databases.updateDocument(databaseId, colId, existing.$id, payload);
-      console.log(`  ✏️  Guncellendi: /${tpl.slug}`);
-    } else {
-      await databases.createDocument(databaseId, colId, ID.unique(), payload);
-      console.log(`  ✅ Olusturuldu: /${tpl.slug}`);
-    }
+  if (existing.length) {
+    await d1(
+      `UPDATE pages SET title_fr = ?, title_tr = ?, content_fr = ?, content_tr = ?,
+         sort_order = ?, is_published = 1, updated_at = datetime('now')
+       WHERE slug = ?`,
+      [...values, tpl.slug]
+    );
+    console.log(`  guncellendi  /${tpl.slug}`);
+  } else {
+    await d1(
+      `INSERT INTO pages (id, slug, title_fr, title_tr, content_fr, content_tr, sort_order, is_published)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+      [randomBytes(16).toString('hex'), tpl.slug, ...values]
+    );
+    console.log(`  olusturuldu  /${tpl.slug}`);
   }
-
-  console.log('\n🌐 Canli URL\'ler:');
-  for (const tpl of PAGE_TEMPLATES) {
-    console.log(`   https://www.cbnplaque.com/${tpl.slug}`);
-  }
-  console.log('\n✅ Tamam!\n');
 }
 
-run().catch((e) => {
-  console.error('❌ Hata:', e?.message || e);
-  process.exit(1);
-});
+console.log('\nCanli URL\'ler:');
+for (const tpl of PAGE_TEMPLATES) console.log(`  https://www.cbnplaque.com/${tpl.slug}`);
+console.log('');

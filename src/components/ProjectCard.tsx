@@ -1,7 +1,8 @@
 import { Link } from '@/i18n/navigation';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 import { localized, type ProjectDoc } from '@/lib/types';
-import { loadCategories, getCatLabel, getCatColorClass } from '@/lib/categories';
+import { getCategories } from '@/lib/data';
+import { getCatLabel, getCatColorClass } from '@/lib/categories';
 import { seoImageAlt } from '@/lib/seo';
 
 export default async function ProjectCard({
@@ -11,9 +12,9 @@ export default async function ProjectCard({
   project: ProjectDoc;
   locale: string;
 }) {
-  const cats  = await loadCategories();
+  const cats  = await getCategories();
   const title = localized(project as unknown as Record<string, unknown>, 'title', locale);
-  const cover = project.cover_file_id ? fileViewUrl(project.cover_file_id) : '';
+  const cover = assetUrl(project.cover_file_id);
   const catLabel = getCatLabel(cats, project.category, locale);
   const catColor = getCatColorClass(cats, project.category);
 

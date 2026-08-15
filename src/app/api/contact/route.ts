@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client, Databases, ID } from 'node-appwrite';
+import { d1Run, isD1Configured, newId } from '@/lib/d1';
+
+export const runtime = 'nodejs';
 
 function getMailConfig() {
   const resendFromRaw = (process.env.RESEND_FROM ?? 'onboarding@resend.dev').trim();
@@ -7,11 +9,6 @@ function getMailConfig() {
   const from = (match ? match[1] : resendFromRaw).trim();
 
   return {
-    endpoint: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT ?? 'https://cloud.appwrite.io/v1',
-    projectId: process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID ?? '',
-    apiKey: (process.env.APPWRITE_API_KEY ?? '').trim(),
-    databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID ?? 'main',
-    messagesCol: process.env.NEXT_PUBLIC_APPWRITE_COL_MESSAGES ?? 'messages',
     notifyEmail: (process.env.CONTACT_NOTIFY_EMAIL ?? 'sertaccoban@gmail.com').trim(),
     resendKey: (process.env.RESEND_API_KEY ?? '').trim(),
     resendFrom: from
@@ -26,25 +23,19 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-async function saveMessage(
-  cfg: ReturnType<typeof getMailConfig>,
-  data: { name: string; email: string; phone: string; body: string }
-): Promise<boolean> {
-  if (!cfg.projectId || !cfg.apiKey) return false;
+async function saveMessage(data: {
+  name: string;
+  email: string;
+  phone: string;
+  body: string;
+}): Promise<boolean> {
+  if (!isD1Configured()) return false;
 
-  const client = new Client()
-    .setEndpoint(cfg.endpoint)
-    .setProject(cfg.projectId)
-    .setKey(cfg.apiKey);
-  const db = new Databases(client);
-
-  await db.createDocument(cfg.databaseId, cfg.messagesCol, ID.unique(), {
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
-    body: data.body,
-    is_read: false
-  });
+  await d1Run(
+    `INSERT INTO messages (id, name, email, phone, body, is_read, created_at)
+     VALUES (?, ?, ?, ?, ?, 0, ?)`,
+    [newId(), data.name, data.email, data.phone, data.body, new Date().toISOString()]
+  );
   return true;
 }
 
@@ -127,33 +118,31 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = { name, email, phone, body };
-    const saved = await saveMessage(cfg, payload);
 
-    if (!saved) {
-      return NextResponse.json({ ok: false, fallback: true });
+    // Kayit ile e-posta birbirinden bagimsiz; biri calisirsa mesaj kaybolmaz.
+    let saved = false;
+    try {
+      saved = await saveMessage(payload);
+    } catch (e) {
+      console.error('[contact] D1 kayit hatasi:', e instanceof Error ? e.message : e);
     }
 
-    let emailed = false;
-    let emailReason: string | undefined;
-    let emailDetail: string | undefined;
-    let resendId: string | undefined;
-
     const mail = await sendNotifyEmail(cfg, payload);
-    emailed = mail.ok;
-    if (!emailed) {
-      emailReason = mail.reason ?? 'resend_rejected';
-      emailDetail = mail.detail;
-    } else {
-      resendId = mail.resendId;
+
+    if (!saved && !mail.ok) {
+      return NextResponse.json(
+        { ok: false, error: 'not_delivered', emailReason: mail.reason },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({
       ok: true,
-      emailed,
-      emailReason,
+      saved,
+      emailed: mail.ok,
       mailTo: cfg.notifyEmail,
-      ...(resendId ? { resendId } : {}),
-      ...(emailDetail ? { emailDetail } : {})
+      ...(mail.resendId ? { resendId: mail.resendId } : {}),
+      ...(mail.ok ? {} : { emailReason: mail.reason, emailDetail: mail.detail })
     });
   } catch {
     return NextResponse.json({ ok: false, error: 'server_error' }, { status: 500 });

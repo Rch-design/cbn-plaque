@@ -5,7 +5,7 @@ import { getReviews, getSettings, settingValue } from '@/lib/data';
 import JsonLd from '@/components/JsonLd';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildReviewsJsonLd } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { databases, storage, appwriteConfig, ID, Query } from '@/lib/appwrite';
-import { Permission, Role } from 'appwrite';
-
-const { databaseId, collections, bucketId, projectId, endpoint } = appwriteConfig;
+import {
+  adminList, adminCreate, adminUpdate, adminDelete, uploadFile, deleteFile
+} from '@/lib/admin-client';
+import { assetUrl } from '@/lib/assets';
 
 interface BannerDoc {
   $id: string;
@@ -42,10 +42,6 @@ const empty = (): Omit<BannerDoc, '$id'> => ({
   sort_order:    0
 });
 
-function fileViewUrl(id: string) {
-  return `${endpoint}/storage/buckets/${bucketId}/files/${id}/view?project=${projectId}`;
-}
-
 export default function BannersManager() {
   const [items,   setItems]   = useState<BannerDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,10 +55,7 @@ export default function BannersManager() {
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.banners, [
-        Query.orderAsc('sort_order'), Query.limit(50)
-      ]);
-      setItems(res.documents as unknown as BannerDoc[]);
+      setItems(await adminList<BannerDoc>('banners'));
     } catch { setItems([]); }
     setLoading(false);
   }
@@ -87,16 +80,16 @@ export default function BannersManager() {
     if (!file) return;
     setUpload('Yükleniyor…');
     try {
-      const res = await storage.createFile(bucketId, ID.unique(), file);
-      setForm(prev => ({ ...prev, image_file_id: res.$id }));
+      const key = await uploadFile(file, 'banners');
+      setForm(prev => ({ ...prev, image_file_id: key }));
       setUpload('✅ Yüklendi');
     } catch { setUpload('❌ Hata'); }
     setTimeout(() => setUpload(''), 2000);
   }
 
   async function removeImage(fileId: string) {
-    try { await storage.deleteFile(bucketId, fileId); } catch {}
     setForm(prev => ({ ...prev, image_file_id: '' }));
+    await deleteFile(fileId);
   }
 
   async function save() {
@@ -104,28 +97,27 @@ export default function BannersManager() {
     setBusy(true);
     try {
       if (editing === 'new') {
-        await databases.createDocument(databaseId, collections.banners, ID.unique(), form,
-          [Permission.read(Role.any())]);
+        await adminCreate('banners', { ...form });
       } else if (editing) {
-        await databases.updateDocument(databaseId, collections.banners, editing, form);
+        await adminUpdate('banners', editing, { ...form });
       }
       setEditing(null);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       await load();
-    } catch { alert('Kaydedilemedi.'); }
+    } catch (e) { alert(e instanceof Error ? e.message : 'Kaydedilemedi.'); }
     setBusy(false);
   }
 
   async function remove(id: string, imgId?: string) {
     if (!confirm('Banner silinsin mi?')) return;
-    if (imgId) { try { await storage.deleteFile(bucketId, imgId); } catch {} }
-    await databases.deleteDocument(databaseId, collections.banners, id).catch(() => {});
+    await adminDelete('banners', id).catch(() => {});
+    if (imgId) await deleteFile(imgId);
     await load();
   }
 
   async function toggleActive(item: BannerDoc) {
-    await databases.updateDocument(databaseId, collections.banners, item.$id, {
+    await adminUpdate('banners', item.$id, {
       is_active: !item.is_active
     }).catch(() => {});
     await load();
@@ -136,8 +128,8 @@ export default function BannersManager() {
     if (nb < 0 || nb >= items.length) return;
     const [a, b] = [items[index], items[nb]];
     await Promise.all([
-      databases.updateDocument(databaseId, collections.banners, a.$id, { sort_order: b.sort_order }),
-      databases.updateDocument(databaseId, collections.banners, b.$id, { sort_order: a.sort_order })
+      adminUpdate('banners', a.$id, { sort_order: b.sort_order }),
+      adminUpdate('banners', b.$id, { sort_order: a.sort_order })
     ]).catch(() => {});
     await load();
   }
@@ -177,7 +169,7 @@ export default function BannersManager() {
             <div>
               {form.image_file_id && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={fileViewUrl(form.image_file_id)} alt="" className="mb-2 h-12 w-12 rounded-full object-cover" />
+                <img src={assetUrl(form.image_file_id)} alt="" className="mb-2 h-12 w-12 rounded-full object-cover" />
               )}
               <p className="font-extrabold text-lg leading-tight">{form.title || 'Banner Başlığı'}</p>
               {form.subtitle && <p className="text-sm opacity-80 mt-0.5">{form.subtitle}</p>}
@@ -253,7 +245,7 @@ export default function BannersManager() {
             {form.image_file_id ? (
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={fileViewUrl(form.image_file_id)} alt="" className="h-16 w-24 rounded-xl object-cover ring-1 ring-gray-200" />
+                <img src={assetUrl(form.image_file_id)} alt="" className="h-16 w-24 rounded-xl object-cover ring-1 ring-gray-200" />
                 <div className="flex flex-col gap-2">
                   <button type="button" onClick={() => fileRef.current?.click()}
                     className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">Değiştir</button>

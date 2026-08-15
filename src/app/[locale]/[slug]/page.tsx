@@ -9,7 +9,7 @@ import PageContent from '@/components/PageContent';
 import JsonLd from '@/components/JsonLd';
 import { buildArticleJsonLd, buildBreadcrumbJsonLd, buildPageMetadata } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 const RESERVED_SLUGS = new Set(['icon', 'apple-icon', 'favicon']);
 

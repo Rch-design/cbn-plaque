@@ -11,9 +11,9 @@ import {
   buildPageMetadata,
   EXTERNAL_LINKS
 } from '@/lib/seo';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params
@@ -41,7 +41,7 @@ export default async function ContactPage({ params }: { params: { locale: string
   const email = settingValue(settings, 'email', locale, 'cbnplaque@gmail.com');
   const zone = settingValue(settings, 'zone', locale, 'Morbier / Jura');
   const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
-  const logoUrl = logoFileId ? fileViewUrl(logoFileId) : undefined;
+  const logoUrl = assetUrl(logoFileId) || undefined;
 
   const jsonLd = [
     buildBreadcrumbJsonLd(locale, [

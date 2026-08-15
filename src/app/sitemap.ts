@@ -5,7 +5,7 @@ import { SEO_PAGE_SLUGS } from '@/lib/page-templates';
 
 const paths = ['', '/services', '/realisations', '/guides', '/avis', '/contact'] as const;
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -90,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   } catch {
-    // Appwrite erisilemezse statik URL'ler yine doner
+    // Veritabani erisilemezse statik URL'ler yine doner
   }
 
   return entries;

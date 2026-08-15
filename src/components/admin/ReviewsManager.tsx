@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
-import { Permission, Role } from 'appwrite';
+import { adminList, adminCreate, adminUpdate, adminDelete } from '@/lib/admin-client';
 import type { ReviewDoc } from '@/lib/types';
-
-const { databaseId, collections } = appwriteConfig;
 
 const empty = (): Omit<ReviewDoc, '$id' | '$createdAt'> => ({
   name:       '',
@@ -54,10 +51,7 @@ export default function ReviewsManager() {
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.reviews, [
-        Query.orderAsc('sort_order'), Query.limit(100)
-      ]);
-      setItems(res.documents as unknown as ReviewDoc[]);
+      setItems(await adminList<ReviewDoc>('reviews'));
     } catch { setItems([]); }
     setLoading(false);
   }
@@ -87,10 +81,9 @@ export default function ReviewsManager() {
     setBusy(true);
     try {
       if (editing === 'new') {
-        await databases.createDocument(databaseId, collections.reviews, ID.unique(), form,
-          [Permission.read(Role.any())]);
+        await adminCreate('reviews', form);
       } else if (editing) {
-        await databases.updateDocument(databaseId, collections.reviews, editing, form);
+        await adminUpdate('reviews', editing, form);
       }
       setEditing(null);
       setSaved(true);
@@ -103,16 +96,14 @@ export default function ReviewsManager() {
   async function remove(id: string) {
     if (!confirm('Bu değerlendirmeyi silmek istediğinize emin misiniz?')) return;
     try {
-      await databases.deleteDocument(databaseId, collections.reviews, id);
+      await adminDelete('reviews', id);
       await load();
     } catch { alert('Silinemedi.'); }
   }
 
   async function toggleActive(item: ReviewDoc) {
     try {
-      await databases.updateDocument(databaseId, collections.reviews, item.$id, {
-        is_active: !(item.is_active ?? true)
-      });
+      await adminUpdate('reviews', item.$id, { is_active: !(item.is_active ?? true) });
       await load();
     } catch { alert('Güncellenemedi.'); }
   }
@@ -121,8 +112,8 @@ export default function ReviewsManager() {
     if (index === 0) return;
     const [a, b] = [items[index - 1], items[index]];
     await Promise.all([
-      databases.updateDocument(databaseId, collections.reviews, a.$id, { sort_order: b.sort_order }),
-      databases.updateDocument(databaseId, collections.reviews, b.$id, { sort_order: a.sort_order })
+      adminUpdate('reviews', a.$id, { sort_order: b.sort_order }),
+      adminUpdate('reviews', b.$id, { sort_order: a.sort_order })
     ]).catch(() => {});
     await load();
   }
@@ -131,8 +122,8 @@ export default function ReviewsManager() {
     if (index === items.length - 1) return;
     const [a, b] = [items[index], items[index + 1]];
     await Promise.all([
-      databases.updateDocument(databaseId, collections.reviews, a.$id, { sort_order: b.sort_order }),
-      databases.updateDocument(databaseId, collections.reviews, b.$id, { sort_order: a.sort_order })
+      adminUpdate('reviews', a.$id, { sort_order: b.sort_order }),
+      adminUpdate('reviews', b.$id, { sort_order: a.sort_order })
     ]).catch(() => {});
     await load();
   }

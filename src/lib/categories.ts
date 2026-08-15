@@ -1,9 +1,14 @@
-import { databases, appwriteConfig, ID, Query } from './appwrite';
-import { Permission, Role } from 'appwrite';
+/**
+ * Proje kategorileri — saf yardımcılar.
+ *
+ * Bu dosya tarayıcıda da import edildiği için veritabanına dokunmaz.
+ * Kategorileri okumak: `getCategories()` (src/lib/data.ts),
+ * yazmak: `PUT /api/admin/categories`.
+ */
 import type { ProjectCategory } from './types';
 import { DEFAULT_CATEGORIES } from './types';
 
-const SETTING_KEY = 'project_categories';
+export const CATEGORIES_SETTING_KEY = 'project_categories';
 
 export const CAT_COLOR_CLASS: Record<ProjectCategory['color'], string> = {
   orange: 'bg-orange-100 text-orange-700',
@@ -27,43 +32,16 @@ export const COLOR_OPTIONS: { value: ProjectCategory['color']; label: string; cl
   { value: 'gray',   label: 'Gri',     class: 'bg-gray-400' }
 ];
 
-export async function loadCategories(): Promise<ProjectCategory[]> {
+/** settings.project_categories JSON metnini güvenli biçimde çözer. */
+export function parseCategories(raw?: string | null): ProjectCategory[] {
+  const text = (raw ?? '').trim();
+  if (!text) return DEFAULT_CATEGORIES;
   try {
-    const res = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.settings,
-      [Query.equal('key', SETTING_KEY), Query.limit(1)]
-    );
-    if (res.documents.length > 0) {
-      const raw = res.documents[0].value_fr as string;
-      if (raw) return JSON.parse(raw) as ProjectCategory[];
-    }
-  } catch { /* ignore */ }
-  return DEFAULT_CATEGORIES;
-}
-
-export async function saveCategories(cats: ProjectCategory[]): Promise<void> {
-  const json = JSON.stringify(cats);
-  const res = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.settings,
-    [Query.equal('key', SETTING_KEY), Query.limit(1)]
-  );
-  if (res.documents.length > 0) {
-    await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.settings,
-      res.documents[0].$id,
-      { value_fr: json, value_tr: json }
-    );
-  } else {
-    await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.settings,
-      ID.unique(),
-      { key: SETTING_KEY, value_fr: json, value_tr: json },
-      [Permission.read(Role.any())]
-    );
+    const parsed = JSON.parse(text);
+    if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_CATEGORIES;
+    return parsed as ProjectCategory[];
+  } catch {
+    return DEFAULT_CATEGORIES;
   }
 }
 

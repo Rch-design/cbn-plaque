@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 
 const BOX = {
   sm: 'h-10 w-10',
@@ -26,7 +26,7 @@ export default function SiteLogo({
   className?: string;
 }) {
   const [error, setError] = useState(false);
-  const logoUrl = logoFileId?.trim() ? fileViewUrl(logoFileId.trim()) : '';
+  const logoUrl = assetUrl(logoFileId);
   const rounded = 'rounded-3xl';
 
   if (logoUrl && !error) {

@@ -1,41 +1,6 @@
 import Link from 'next/link';
-import { databases, appwriteConfig, Query } from '@/lib/appwrite';
-
-interface BannerDoc {
-  $id: string;
-  title: string;
-  subtitle?: string;
-  cta_text?: string;
-  cta_link?: string;
-  bg_color?: string;
-  text_color?: string;
-  image_file_id?: string;
-  pages?: string;
-  is_active: boolean;
-  sort_order: number;
-}
-
-async function getBanners(pageSlug: string): Promise<BannerDoc[]> {
-  try {
-    const res = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.banners,
-      [Query.orderAsc('sort_order'), Query.limit(20)]
-    );
-    const all = res.documents as unknown as BannerDoc[];
-    return all.filter(b => {
-      if (b.is_active === false) return false;
-      const p = b.pages ?? 'all';
-      return p === 'all' || p === pageSlug;
-    });
-  } catch {
-    return [];
-  }
-}
-
-function fileViewUrl(id: string) {
-  return `${appwriteConfig.endpoint}/storage/buckets/${appwriteConfig.bucketId}/files/${id}/view?project=${appwriteConfig.projectId}`;
-}
+import { getBanners } from '@/lib/data';
+import { assetUrl } from '@/lib/assets';
 
 export default async function AdBanner({ pageSlug }: { pageSlug: string }) {
   const banners = await getBanners(pageSlug);
@@ -44,8 +9,8 @@ export default async function AdBanner({ pageSlug }: { pageSlug: string }) {
   return (
     <div className="w-full space-y-0">
       {banners.map((b) => {
-        const bg   = b.bg_color   ?? '#1e40af';
-        const text = b.text_color ?? '#ffffff';
+        const bg   = b.bg_color   || '#1e40af';
+        const text = b.text_color || '#ffffff';
         const inner = (
           <div
             className="flex w-full items-center justify-between gap-4 px-6 py-4 sm:px-10"
@@ -55,7 +20,7 @@ export default async function AdBanner({ pageSlug }: { pageSlug: string }) {
               {b.image_file_id && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={fileViewUrl(b.image_file_id)}
+                  src={assetUrl(b.image_file_id)}
                   alt=""
                   className="h-12 w-12 shrink-0 rounded-full object-cover shadow"
                 />

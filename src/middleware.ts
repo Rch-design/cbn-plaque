@@ -1,13 +1,23 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
+import { SESSION_COOKIE, verifySessionToken } from './lib/session';
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host') ?? '';
   const pathname = url.pathname;
+
+  // Admin API'si oturum ister; dil yonlendirmesi uygulanmaz.
+  if (pathname.startsWith('/api/admin')) {
+    const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
 
   // HTTP → HTTPS
   const proto = request.headers.get('x-forwarded-proto');
@@ -39,5 +49,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/(fr|tr)/:path*', '/((?!api|admin|_next|_vercel|.*\\..*).*)']
+  matcher: ['/', '/(fr|tr)/:path*', '/api/admin/:path*', '/((?!api|admin|_next|_vercel|.*\\..*).*)']
 };

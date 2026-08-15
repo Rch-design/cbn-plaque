@@ -7,7 +7,7 @@ import JsonLd from '@/components/JsonLd';
 import { buildBreadcrumbJsonLd, buildFaqJsonLd, buildGuidesListJsonLd, buildPageMetadata } from '@/lib/seo';
 import { localized } from '@/lib/types';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params

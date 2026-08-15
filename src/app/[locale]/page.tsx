@@ -5,7 +5,7 @@ import { getServices, getProjects, getSettings, settingValue } from '@/lib/data'
 import { localized } from '@/lib/types';
 import ServiceIcon from '@/components/ServiceIcon';
 import ProjectCard from '@/components/ProjectCard';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 import GoogleAdBanner from '@/components/GoogleAdBanner';
 import {
   absoluteUrl,
@@ -14,7 +14,7 @@ import {
   buildWebSiteJsonLd
 } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params
@@ -53,7 +53,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const heroSubtitle = settingValue(settings, heroSubKey, locale, '') || t('heroSubtitle');
 
   const logoFileId = settings['design_logo_file_id']?.value_fr ?? '';
-  const logoUrl = logoFileId ? fileViewUrl(logoFileId) : undefined;
+  const logoUrl = assetUrl(logoFileId) || undefined;
   const pageUrl = absoluteUrl(locale);
 
   const jsonLd = [
@@ -199,7 +199,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
                   {s.image_file_id && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={fileViewUrl(s.image_file_id)}
+                      src={assetUrl(s.image_file_id)}
                       alt={`${title} — CBN Plaque Morbier`}
                       loading="lazy"
                       className="h-40 w-full object-cover"

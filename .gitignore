@@ -9,3 +9,8 @@ build
 *.log
 .vercel
 next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Appwrite -> Cloudflare aktarim ciktisi (musteri mesajlari ve gorseller)
+migration-data
+_vidframes

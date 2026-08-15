@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getProjects } from '@/lib/data';
-import { loadCategories, getCatLabel } from '@/lib/categories';
+import { getProjects, getCategories } from '@/lib/data';
+import { getCatLabel } from '@/lib/categories';
 import { localized } from '@/lib/types';
 import ProjectCard from '@/components/ProjectCard';
 import { Link } from '@/i18n/navigation';
@@ -9,7 +9,7 @@ import JsonLd from '@/components/JsonLd';
 import SeoIntroBlock from '@/components/SeoIntroBlock';
 import { buildBreadcrumbJsonLd, buildPageMetadata, buildProjectListJsonLd } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params
@@ -39,7 +39,7 @@ export default async function RealisationsPage({
   const ts = await getTranslations({ locale, namespace: 'realisations.seo' });
 
   const [cats, projects] = await Promise.all([
-    loadCategories(),
+    getCategories(),
     getProjects(undefined, true)
   ]);
 

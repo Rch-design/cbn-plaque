@@ -1,45 +1,9 @@
-import { databases, appwriteConfig, ID, Query, Permission, Role } from '@/lib/appwrite';
-
-const { databaseId, collections } = appwriteConfig;
-const COL = collections.analytics;
-
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-/** Public site: record one page view (no API key required). */
-export async function trackPageView(pathname: string): Promise<void> {
-  const date = today();
-  const page = (pathname || '/').slice(0, 200);
-
-  try {
-    const existing = await databases.listDocuments(databaseId, COL, [
-      Query.equal('date', date),
-      Query.equal('page', page),
-      Query.limit(1)
-    ]);
-
-    if (existing.documents.length > 0) {
-      const doc = existing.documents[0];
-      const views = typeof doc.views === 'number' ? doc.views : 0;
-      await databases.updateDocument(databaseId, COL, doc.$id, { views: views + 1 });
-      return;
-    }
-
-    await databases.createDocument(
-      databaseId,
-      COL,
-      ID.unique(),
-      { date, page, views: 1 },
-      [
-        Permission.read(Role.any()),
-        Permission.update(Role.any())
-      ]
-    );
-  } catch {
-    // silent — tracking must not break the site
-  }
-}
+/**
+ * Ziyaret sayacı — tarayıcı tarafı.
+ *
+ * Yazma işlemi artık doğrudan veritabanına değil, sunucudaki
+ * `/api/track` ucuna gider; böylece herkese açık yazma yetkisi kalmaz.
+ */
 
 export interface AnalyticsRow {
   $id: string;
@@ -48,19 +12,27 @@ export interface AnalyticsRow {
   views: number;
 }
 
-/** Admin / public read (collection allows Role.any() read). */
-export async function fetchAnalyticsRows(days = 30): Promise<AnalyticsRow[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  const sinceStr = since.toISOString().slice(0, 10);
-
+/** Bir sayfa görüntülemesi bildirir. Hata sitenin çalışmasını etkilemez. */
+export async function trackPageView(pathname: string): Promise<void> {
   try {
-    const res = await databases.listDocuments(databaseId, COL, [
-      Query.greaterThanEqual('date', sinceStr),
-      Query.orderDesc('date'),
-      Query.limit(500)
-    ]);
-    return res.documents as unknown as AnalyticsRow[];
+    await fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: (pathname || '/').slice(0, 200) }),
+      keepalive: true
+    });
+  } catch {
+    // sessiz
+  }
+}
+
+/** Admin paneli için son N günün satırları. */
+export async function fetchAnalyticsRows(days = 30): Promise<AnalyticsRow[]> {
+  try {
+    const res = await fetch(`/api/admin/analytics?days=${days}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.rows) ? (data.rows as AnalyticsRow[]) : [];
   } catch {
     return [];
   }

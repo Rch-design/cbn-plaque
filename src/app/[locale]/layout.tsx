@@ -18,7 +18,7 @@ import CookieConsent from '@/components/CookieConsent';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import AdSenseLoader from '@/components/AdSenseLoader';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params

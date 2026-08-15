@@ -2,23 +2,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { databases, appwriteConfig, ID } from '@/lib/appwrite';
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
-
-async function saveViaClient(data: {
-  name: string;
-  email: string;
-  phone: string;
-  body: string;
-}) {
-  await databases.createDocument(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.messages,
-    ID.unique(),
-    { ...data, is_read: false }
-  );
-}
 
 export default function ContactForm() {
   const t = useTranslations('contact');
@@ -43,30 +28,16 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const json = (await res.json()) as { ok?: boolean; fallback?: boolean };
+      const json = (await res.json()) as { ok?: boolean };
 
       if (json.ok) {
         setStatus('success');
         form.reset();
         return;
       }
-
-      if (json.fallback) {
-        await saveViaClient(payload);
-        setStatus('success');
-        form.reset();
-        return;
-      }
-
       setStatus('error');
     } catch {
-      try {
-        await saveViaClient(payload);
-        setStatus('success');
-        form.reset();
-      } catch {
-        setStatus('error');
-      }
+      setStatus('error');
     }
   }
 

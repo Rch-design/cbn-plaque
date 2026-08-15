@@ -1,11 +1,11 @@
 import { getSettings, logoFileIdFromSettings } from '@/lib/data';
-import { fileViewUrl } from '@/lib/appwrite';
+import { assetUrl } from '@/lib/assets';
 
 /** Google arama favicon'u icin admin logosu (PNG/JPEG, kare) */
 export async function getSiteLogoIconUrl(): Promise<string | null> {
   const settings = await getSettings();
-  const logoId = logoFileIdFromSettings(settings);
-  return logoId ? fileViewUrl(logoId) : null;
+  const logoKey = logoFileIdFromSettings(settings);
+  return logoKey ? assetUrl(logoKey) || null : null;
 }
 
 export async function fetchSiteLogoIcon(): Promise<Response | null> {

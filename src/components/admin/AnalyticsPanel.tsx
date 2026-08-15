@@ -63,7 +63,7 @@ export default function AnalyticsPanel() {
       }
     } catch (e) {
       setRows([]);
-      setError('Veriler yüklenemedi. Appwrite CORS / izinlerini kontrol edin.');
+      setError('Veriler yüklenemedi. Oturumunuz sona ermiş olabilir.');
       console.error(e);
     }
     setLoading(false);

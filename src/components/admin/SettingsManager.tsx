@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { databases, appwriteConfig, ID, Query } from '@/lib/appwrite';
+import { loadSettings, saveSettings } from '@/lib/admin-client';
 import type { SettingDoc } from '@/lib/types';
 import ReviewMessageTemplates from '@/components/admin/ReviewMessageTemplates';
-
-const { databaseId, collections } = appwriteConfig;
 
 const KEYS: {
   key: string;
@@ -27,7 +25,6 @@ const KEYS: {
 ];
 
 export default function SettingsManager() {
-  const [docs, setDocs] = useState<Record<string, SettingDoc>>({});
   const [values, setValues] = useState<Record<string, { fr: string; tr: string }>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -36,17 +33,15 @@ export default function SettingsManager() {
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.settings, [Query.limit(100)]);
       const map: Record<string, SettingDoc> = {};
-      for (const d of res.documents as unknown as SettingDoc[]) map[d.key] = d;
-      setDocs(map);
+      for (const d of await loadSettings()) map[d.key] = d;
       const v: Record<string, { fr: string; tr: string }> = {};
       for (const k of KEYS) {
         v[k.key] = { fr: map[k.key]?.value_fr ?? '', tr: map[k.key]?.value_tr ?? '' };
       }
       setValues(v);
     } catch {
-      setDocs({});
+      setValues({});
     } finally {
       setLoading(false);
     }
@@ -60,19 +55,16 @@ export default function SettingsManager() {
     setBusy(true);
     setSaved(false);
     try {
-      for (const k of KEYS) {
-        const v = values[k.key];
-        const payload = {
-          key: k.key,
-          value_fr: v.fr,
-          value_tr: k.bilingual ? v.tr : v.fr
-        };
-        if (docs[k.key]) {
-          await databases.updateDocument(databaseId, collections.settings, docs[k.key].$id, payload);
-        } else {
-          await databases.createDocument(databaseId, collections.settings, ID.unique(), payload);
-        }
-      }
+      await saveSettings(
+        KEYS.map((k) => {
+          const v = values[k.key];
+          return {
+            key: k.key,
+            value_fr: v.fr,
+            value_tr: k.bilingual ? v.tr : v.fr
+          };
+        })
+      );
       setSaved(true);
       await load();
     } catch {

@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { databases, appwriteConfig, Query } from '@/lib/appwrite';
+import { adminList, adminUpdate, adminDelete } from '@/lib/admin-client';
 import type { MessageDoc } from '@/lib/types';
-
-const { databaseId, collections } = appwriteConfig;
 
 export default function MessagesManager({
   onCountChange
@@ -23,11 +21,7 @@ export default function MessagesManager({
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.messages, [
-        Query.orderDesc('$createdAt'),
-        Query.limit(100)
-      ]);
-      const docs = res.documents as unknown as MessageDoc[];
+      const docs = await adminList<MessageDoc>('messages');
       setItems(docs);
       updateCount(docs);
     } catch {
@@ -41,9 +35,7 @@ export default function MessagesManager({
 
   async function toggleRead(msg: MessageDoc) {
     try {
-      await databases.updateDocument(databaseId, collections.messages, msg.$id, {
-        is_read: !msg.is_read
-      });
+      await adminUpdate('messages', msg.$id, { is_read: !msg.is_read });
       setItems((list) => {
         const updated = list.map((m) => m.$id === msg.$id ? { ...m, is_read: !m.is_read } : m);
         updateCount(updated);
@@ -59,9 +51,7 @@ export default function MessagesManager({
     if (!unread.length) return;
     try {
       await Promise.all(
-        unread.map((m) =>
-          databases.updateDocument(databaseId, collections.messages, m.$id, { is_read: true })
-        )
+        unread.map((m) => adminUpdate('messages', m.$id, { is_read: true }))
       );
       setItems((list) => {
         const updated = list.map((m) => ({ ...m, is_read: true }));
@@ -76,7 +66,7 @@ export default function MessagesManager({
   async function remove(id: string) {
     if (!confirm('Bu mesajı silmek istiyor musunuz?')) return;
     try {
-      await databases.deleteDocument(databaseId, collections.messages, id);
+      await adminDelete('messages', id);
       setItems((list) => {
         const updated = list.filter((m) => m.$id !== id);
         updateCount(updated);

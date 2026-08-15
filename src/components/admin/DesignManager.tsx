@@ -1,52 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { databases, storage, appwriteConfig } from '@/lib/appwrite';
-import { ID, Permission, Role } from 'appwrite';
+import { loadSettings, saveSetting, saveSettings, uploadFile, deleteFile } from '@/lib/admin-client';
+import { assetUrl } from '@/lib/assets';
 
 /* ── Mevcut ayarları çekme ── */
 async function fetchDesignSettings(): Promise<Record<string, string>> {
-  const result = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.settings
-  );
   const map: Record<string, string> = {};
-  for (const doc of result.documents) {
+  for (const doc of await loadSettings()) {
     map[doc.key] = doc.value_fr ?? '';
-  }
-  return map;
-}
-
-/* ── Tek ayar kaydetme — document ID döner */
-async function saveSetting(key: string, value: string, existingId?: string): Promise<string> {
-  if (existingId) {
-    await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.collections.settings,
-      existingId,
-      { value_fr: value, value_tr: value }
-    );
-    return existingId;
-  }
-  const doc = await databases.createDocument(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.settings,
-    ID.unique(),
-    { key, value_fr: value, value_tr: value },
-    [Permission.read(Role.any())]
-  );
-  return doc.$id;
-}
-
-/* ── Tüm ayar ID'lerini çekme (update için gerekli) ── */
-async function fetchDocIds(): Promise<Record<string, string>> {
-  const result = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.settings
-  );
-  const map: Record<string, string> = {};
-  for (const doc of result.documents) {
-    map[doc.key] = doc.$id;
   }
   return map;
 }
@@ -151,13 +113,10 @@ export default function DesignManager() {
   const [footerText, setFooterText]       = useState('#d1d5db');
   const [fontName, setFontName]           = useState('system');
 
-  const [docIds, setDocIds] = useState<Record<string, string>>({});
-
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [settings, ids] = await Promise.all([fetchDesignSettings(), fetchDocIds()]);
-      setDocIds(ids);
+      const settings = await fetchDesignSettings();
       if (settings.design_primary)       setPrimary(settings.design_primary);
       if (settings.design_primary_dark)  setPrimaryDark(settings.design_primary_dark);
       if (settings.design_primary_text)  setPrimaryText(settings.design_primary_text);
@@ -188,18 +147,12 @@ export default function DesignManager() {
   /* ── Logo yükleme ── */
   async function uploadLogo(file: File) {
     setLogoUploading(true);
-    const previousId = logoFileId;
+    const previousKey = logoFileId;
     try {
-      const uploaded = await storage.createFile(appwriteConfig.bucketId, ID.unique(), file, [
-        Permission.read(Role.any())
-      ]);
-      const newId = uploaded.$id;
-      const docId = await saveSetting('design_logo_file_id', newId, docIds['design_logo_file_id']);
-      setLogoFileId(newId);
-      setDocIds((prev) => ({ ...prev, design_logo_file_id: docId }));
-      if (previousId) {
-        try { await storage.deleteFile(appwriteConfig.bucketId, previousId); } catch (_) {}
-      }
+      const key = await uploadFile(file, 'logo');
+      await saveSetting('design_logo_file_id', key);
+      setLogoFileId(key);
+      await deleteFile(previousKey);
     } catch (e) {
       console.error(e);
       alert('Logo yüklenirken hata oluştu.');
@@ -210,9 +163,9 @@ export default function DesignManager() {
   async function removeLogo() {
     if (!logoFileId) return;
     try {
-      await storage.deleteFile(appwriteConfig.bucketId, logoFileId);
+      await saveSetting('design_logo_file_id', '');
       setLogoFileId('');
-      await saveSetting('design_logo_file_id', '', docIds['design_logo_file_id']);
+      await deleteFile(logoFileId);
     } catch (e) {
       console.error(e);
     }
@@ -242,11 +195,7 @@ export default function DesignManager() {
       design_hero_sub_tr:     heroSubTr
     };
     try {
-      for (const [key, value] of Object.entries(pairs)) {
-        await saveSetting(key, value, docIds[key]);
-      }
-      const ids = await fetchDocIds();
-      setDocIds(ids);
+      await saveSettings(Object.entries(pairs).map(([key, value]) => ({ key, value_fr: value })));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
@@ -256,9 +205,7 @@ export default function DesignManager() {
     setSaving(false);
   }
 
-  const logoPreview = logoFileId
-    ? `${appwriteConfig.endpoint}/storage/buckets/${appwriteConfig.bucketId}/files/${logoFileId}/view?project=${appwriteConfig.projectId}`
-    : '';
+  const logoPreview = assetUrl(logoFileId);
 
   if (loading) {
     return (

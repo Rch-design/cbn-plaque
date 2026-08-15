@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { databases, storage, appwriteConfig, ID, Query, fileViewUrl } from '@/lib/appwrite';
-import { Permission, Role } from 'appwrite';
+import {
+  adminList, adminCreate, adminUpdate, adminDelete, uploadFile, deleteFile
+} from '@/lib/admin-client';
+import { assetUrl } from '@/lib/assets';
 import type { ServiceDoc } from '@/lib/types';
 import ServiceIcon, { SERVICE_ICONS } from '@/components/ServiceIcon';
-
-const { databaseId, collections, bucketId } = appwriteConfig;
 
 const ICON_KEYS = Object.keys(SERVICE_ICONS);
 
@@ -35,11 +35,7 @@ export default function ServicesManager() {
   async function load() {
     setLoading(true);
     try {
-      const res = await databases.listDocuments(databaseId, collections.services, [
-        Query.orderAsc('sort_order'),
-        Query.limit(100)
-      ]);
-      setItems(res.documents as unknown as ServiceDoc[]);
+      setItems(await adminList<ServiceDoc>('services'));
     } catch {
       setItems([]);
     } finally {
@@ -89,12 +85,12 @@ export default function ServicesManager() {
   async function removeImage(fileId: string) {
     if (!confirm('Bu resmi silmek istiyor musunuz?')) return;
     try {
-      await storage.deleteFile(bucketId, fileId);
       const newForm = { ...form, image_file_id: '' };
       setForm(newForm);
       if (editing && editing !== 'new') {
-        await databases.updateDocument(databaseId, collections.services, editing, { image_file_id: '' });
+        await adminUpdate('services', editing, { image_file_id: '' });
       }
+      await deleteFile(fileId);
     } catch { /* ignore */ }
   }
 
@@ -102,38 +98,35 @@ export default function ServicesManager() {
     if (!form.title_fr.trim()) { alert('Fransızca başlık zorunludur.'); return; }
     setBusy(true);
     try {
-      let imageFileId = form.image_file_id ?? '';
+      const oldImageFileId = form.image_file_id ?? '';
+      let imageFileId = oldImageFileId;
 
       // Resim yükle
       const file = fileRef.current?.files?.[0];
       if (file) {
         setUploadProgress('Resim yükleniyor…');
-        if (imageFileId) {
-          try { await storage.deleteFile(bucketId, imageFileId); } catch { /* ignore */ }
-        }
-        const uploaded = await storage.createFile(bucketId, ID.unique(), file, [
-          Permission.read(Role.any())
-        ]);
-        imageFileId = uploaded.$id;
+        imageFileId = await uploadFile(file, 'services');
         setUploadProgress('');
       }
 
       const payload = { ...form, image_file_id: imageFileId };
 
       if (editing === 'new') {
-        await databases.createDocument(
-          databaseId, collections.services, ID.unique(), payload,
-          [Permission.read(Role.any())]
-        );
+        await adminCreate('services', payload);
       } else if (editing) {
-        await databases.updateDocument(databaseId, collections.services, editing, payload);
+        await adminUpdate('services', editing, payload);
       }
+
+      if (oldImageFileId && oldImageFileId !== imageFileId) {
+        await deleteFile(oldImageFileId);
+      }
+
       setEditing(null);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       await load();
-    } catch {
-      alert('Kaydedilemedi. Bağlantı/izin ayarlarını kontrol edin.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Kaydedilemedi. Bağlantı/izin ayarlarını kontrol edin.');
     } finally {
       setBusy(false);
       setUploadProgress('');
@@ -143,21 +136,21 @@ export default function ServicesManager() {
   async function remove(id: string) {
     if (!confirm('Bu hizmeti silmek istediğinize emin misiniz?')) return;
     try {
-      await databases.deleteDocument(databaseId, collections.services, id);
+      await adminDelete('services', id);
       await load();
-    } catch {
-      alert('Silinemedi.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Silinemedi.');
     }
   }
 
   async function toggleActive(item: ServiceDoc) {
     try {
-      await databases.updateDocument(databaseId, collections.services, item.$id, {
+      await adminUpdate('services', item.$id, {
         is_active: !(item.is_active ?? true)
       });
       await load();
-    } catch {
-      alert('Güncellenemedi.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Güncellenemedi.');
     }
   }
 
@@ -167,12 +160,12 @@ export default function ServicesManager() {
     const b = items[index];
     try {
       await Promise.all([
-        databases.updateDocument(databaseId, collections.services, a.$id, { sort_order: b.sort_order }),
-        databases.updateDocument(databaseId, collections.services, b.$id, { sort_order: a.sort_order })
+        adminUpdate('services', a.$id, { sort_order: b.sort_order }),
+        adminUpdate('services', b.$id, { sort_order: a.sort_order })
       ]);
       await load();
-    } catch {
-      alert('Sıra değiştirilemedi.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Sıra değiştirilemedi.');
     }
   }
 
@@ -182,12 +175,12 @@ export default function ServicesManager() {
     const b = items[index + 1];
     try {
       await Promise.all([
-        databases.updateDocument(databaseId, collections.services, a.$id, { sort_order: b.sort_order }),
-        databases.updateDocument(databaseId, collections.services, b.$id, { sort_order: a.sort_order })
+        adminUpdate('services', a.$id, { sort_order: b.sort_order }),
+        adminUpdate('services', b.$id, { sort_order: a.sort_order })
       ]);
       await load();
-    } catch {
-      alert('Sıra değiştirilemedi.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Sıra değiştirilemedi.');
     }
   }
 
@@ -326,7 +319,7 @@ export default function ServicesManager() {
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={fileViewUrl(form.image_file_id)}
+                  src={assetUrl(form.image_file_id)}
                   alt="Hizmet görseli"
                   className="h-20 w-28 rounded-xl object-cover ring-1 ring-gray-200"
                 />
@@ -380,7 +373,7 @@ export default function ServicesManager() {
               {form.image_file_id ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={fileViewUrl(form.image_file_id)}
+                  src={assetUrl(form.image_file_id)}
                   alt=""
                   className="mb-3 h-32 w-full rounded-xl object-cover"
                 />
@@ -434,7 +427,7 @@ export default function ServicesManager() {
             <div className="h-11 w-11 shrink-0 rounded-xl overflow-hidden">
               {item.image_file_id ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={fileViewUrl(item.image_file_id)} alt="" className="h-full w-full object-cover" />
+                <img src={assetUrl(item.image_file_id)} alt="" className="h-full w-full object-cover" />
               ) : (
                 <div
                   className="flex h-full w-full items-center justify-center"
