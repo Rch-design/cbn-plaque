@@ -1,18 +1,21 @@
 import { NextResponse } from 'next/server';
 import { databases, appwriteConfig, Query } from '@/lib/appwrite';
+import { sendMail } from '@/lib/mail';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const { databaseId, collections } = appwriteConfig;
 
+const CONSOLE_URL = 'https://cloud.appwrite.io/console';
+
 /**
- * Backend saglik kontrolu.
+ * Backend saglik kontrolu ve uyari e-postasi.
  *
  * NOT: Appwrite ucretsiz planinda proje yalnizca Console'daki gelistirme
  * etkinligiyle aktif kalir; buradan gelen API sorgulari duraklamayi onlemez
- * (Appwrite politika degisikligi, Subat 2026). Bu uc nokta bu yuzden sadece
- * durum raporlar: ok=false ise backend duraklatilmis demektir.
+ * (Appwrite politika degisikligi, Subat 2026). Bu yuzden duraklama
+ * engellenemiyor, sadece tespit edilip e-posta ile bildiriliyor.
  */
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -37,9 +40,28 @@ export async function GET(req: Request) {
   }
 
   const ok = Object.values(results).every((v) => v === 'ok');
+  const paused = Object.values(results).some((v) => v.includes('paused'));
+
+  let notified: string | undefined;
+  if (!ok) {
+    const mail = await sendMail({
+      subject: paused
+        ? 'cbnplaque.com — Appwrite projesi duraklatildi'
+        : 'cbnplaque.com — backend erisilemiyor',
+      html: `
+        <h2>${paused ? 'Appwrite projesi duraklatildi' : 'Backend erisilemiyor'}</h2>
+        <p>Sitede projeler, resimler ve logo gorunmuyor olabilir.</p>
+        <p><strong>Yapilmasi gereken:</strong> <a href="${CONSOLE_URL}">Appwrite Console</a>
+        adresine gir, CBN Plaque projesini ac ve <em>Restore</em> butonuna bas.</p>
+        <hr>
+        <pre style="font-size:12px">${JSON.stringify(results, null, 2)}</pre>
+      `
+    });
+    notified = mail.ok ? 'sent' : mail.reason;
+  }
 
   return NextResponse.json(
-    { ok, checkedAt: new Date().toISOString(), results },
+    { ok, paused, checkedAt: new Date().toISOString(), results, ...(notified ? { notified } : {}) },
     { status: ok ? 200 : 503 }
   );
 }
