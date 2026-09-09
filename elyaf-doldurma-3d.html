@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elyaf Doldurma Makinesi — 3D Montaj</title>
+  <style>
+    :root {
+      --bg: #e8eef4;
+      --panel: #1a2332;
+      --accent: #c45c26;
+      --ok: #2f6f4e;
+      --text: #f4f7fb;
+      --muted: #9aa8b8;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+    #app {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      height: 100%;
+    }
+    aside {
+      background: var(--panel);
+      padding: 20px 18px;
+      overflow-y: auto;
+      border-right: 1px solid #2c3a4d;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .specs {
+      background: #243044;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      color: #d5deea;
+    }
+    .specs strong { color: #fff; }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .step {
+      text-align: left;
+      background: #243044;
+      border: 1px solid #33465f;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+    .step:hover { border-color: #5a7aa0; }
+    .step.active {
+      background: #2a3f2f;
+      border-color: var(--ok);
+      box-shadow: inset 0 0 0 1px rgba(47, 111, 78, 0.5);
+    }
+    .step .n {
+      display: inline-flex;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .step .t { font-size: 0.88rem; font-weight: 600; }
+    .step .d {
+      display: block;
+      margin-top: 4px;
+      margin-left: 30px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    button.ctrl {
+      flex: 1;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    button.ctrl.secondary {
+      background: #33465f;
+    }
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    main {
+      position: relative;
+    }
+    #c {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .badge {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      background: rgba(26, 35, 50, 0.88);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      max-width: min(420px, 70vw);
+      backdrop-filter: blur(6px);
+    }
+    .badge b { color: #ffb089; }
+    @media (max-width: 860px) {
+      #app { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid #2c3a4d; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside>
+      <h1>Elyaf doldurma makinesi</h1>
+      <div class="sub">Yastık · 200 g/adet · 100 L / 10 bar kompresör · çalışma 2–3 bar</div>
+
+      <div class="specs">
+        <strong>Ölçüler:</strong><br />
+        Hazne ~30 L konik<br />
+        Boğaz / T: Ø 50 mm<br />
+        Hortum: Ø 40 mm · 1,2 m<br />
+        Hava nozulu: Ø 8 mm<br />
+        Doldurma ucu: Ø 35–40 mm
+      </div>
+
+      <div class="controls">
+        <button class="ctrl secondary" id="btnPrev">◀ Önceki</button>
+        <button class="ctrl" id="btnNext">Sonraki ▶</button>
+      </div>
+      <div class="controls">
+        <button class="ctrl secondary" id="btnExplode">Patlat / Birleştir</button>
+        <button class="ctrl secondary" id="btnReset">Kamera sıfırla</button>
+      </div>
+
+      <div class="steps" id="steps"></div>
+      <div class="hint">
+        Fare: sürükle = döndür · tekerlek = zoom · sağ tık = kaydır.<br />
+        Adımlara tıklayınca ilgili parça vurgulanır.
+      </div>
+    </aside>
+    <main>
+      <canvas id="c"></canvas>
+      <div class="badge" id="badge"><b>Adım 0:</b> Genel görünüm — tüm makine</div>
+    </main>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const steps = [
+      {
+        id: "all",
+        title: "Genel görünüm",
+        detail: "Komple montaj. Sonra adım adım parçaları ekle.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "hose", "tip", "airline", "pedal", "regulator"],
+      },
+      {
+        id: "stand",
+        title: "Sehpayı kur",
+        detail: "Sağlam masa/sehpa. Hazne yüksekte, hortum rahat ulaşsın.",
+        parts: ["stand"],
+      },
+      {
+        id: "hopper",
+        title: "Konik hazneyi bağla",
+        detail: "30 L konik bidon/sac. Alt çıkış Ø 50 mm olacak şekilde del.",
+        parts: ["stand", "hopper"],
+      },
+      {
+        id: "mixer",
+        title: "Karıştırıcıyı tak",
+        detail: "Düşük devir (30–60 rpm) kanatlı mil. Elyaf köprülemesin.",
+        parts: ["stand", "hopper", "mixer"],
+      },
+      {
+        id: "neck",
+        title: "Besleme boğazı",
+        detail: "Hazne altından Ø 50 mm kısa boru (10–15 cm).",
+        parts: ["stand", "hopper", "mixer", "neck"],
+      },
+      {
+        id: "tee",
+        title: "PVC T (venturi gövde)",
+        detail: "Ø 50 mm T. Üst = boğaz, yan = hava, düz çıkış = hortum.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee"],
+      },
+      {
+        id: "nozzle",
+        title: "Hava nozulunu yerleştir",
+        detail: "Ø 8 mm boru T yanından içeri, akış yönünde. Uç boğaz altında kalsın.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle"],
+      },
+      {
+        id: "air",
+        title: "Hava hattı + regülatör",
+        detail: "Kompresör → su tutucu → regülatör 2–3 bar → iğneli vana → nozul.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline"],
+      },
+      {
+        id: "pedal",
+        title: "Ayak pedalını bağla",
+        detail: "Pedal hava vanası: basınca üfler, bırakınca keser.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal"],
+      },
+      {
+        id: "hose",
+        title: "Hortum + doldurma ucu",
+        detail: "Ø 40 mm hortum 1,2 m + Ø 35–40 mm uç. Yastık ağzına geçir.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "tip"],
+      },
+      {
+        id: "test",
+        title: "Test ve kalibrasyon",
+        detail: "2 bar ile başla. İlk yastığı tart → 200 g için süreyi sabitle.",
+        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "tip"],
+      },
+    ];
+
+    const canvas = document.getElementById("c");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0xe8eef4, 1);
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
+    camera.position.set(1.8, 1.4, 2.4);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, 0.55, 0);
+    controls.enableDamping = true;
+
+    const hemi = new THREE.HemisphereLight(0xffffff, 0xb0c0d0, 0.95);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.85);
+    dir.position.set(3, 5, 2);
+    dir.castShadow = true;
+    scene.add(dir);
+
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(3.2, 64),
+      new THREE.MeshStandardMaterial({ color: 0xd5dde6, roughness: 1, metalness: 0 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const parts = {};
+    const home = {};
+    const exploded = {};
+    let explodeOn = false;
+    let stepIndex = 0;
+
+    function mat(color, opts = {}) {
+      return new THREE.MeshStandardMaterial({
+        color,
+        roughness: opts.roughness ?? 0.55,
+        metalness: opts.metalness ?? 0.08,
+      });
+    }
+
+    function addPart(name, mesh, homePos, explodePos) {
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.position.copy(homePos);
+      scene.add(mesh);
+      parts[name] = mesh;
+      home[name] = homePos.clone();
+      exploded[name] = explodePos.clone();
+    }
+
+    // Sehpa
+    {
+      const g = new THREE.Group();
+      const wood = mat(0x6b4a32);
+      const top = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, 0.45), wood);
+      top.position.y = 0.55;
+      g.add(top);
+      for (const [x, z] of [[-0.28, -0.16], [0.28, -0.16], [-0.28, 0.16], [0.28, 0.16]]) {
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.55, 0.04), wood);
+        leg.position.set(x, 0.275, z);
+        g.add(leg);
+      }
+      addPart("stand", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
+    }
+
+    // Hazne (konik)
+    {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.28, 0.12, 0.45, 32),
+        mat(0x8a93a0, { metalness: 0.25, roughness: 0.4 })
+      );
+      body.position.y = 0.95;
+      g.add(body);
+      const rim = new THREE.Mesh(
+        new THREE.TorusGeometry(0.28, 0.012, 10, 40),
+        mat(0x5c6570, { metalness: 0.4 })
+      );
+      rim.rotation.x = Math.PI / 2;
+      rim.position.y = 1.175;
+      g.add(rim);
+      addPart("hopper", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0.35, 0));
+    }
+
+    // Karıştırıcı
+    {
+      const g = new THREE.Group();
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.42, 12),
+        mat(0x333333, { metalness: 0.6, roughness: 0.35 })
+      );
+      shaft.position.y = 0.95;
+      g.add(shaft);
+      const motor = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.06, 0.08, 20),
+        mat(0x222222, { metalness: 0.5 })
+      );
+      motor.position.y = 1.22;
+      g.add(motor);
+      for (let i = 0; i < 3; i++) {
+        const blade = new THREE.Mesh(
+          new THREE.BoxGeometry(0.18, 0.01, 0.04),
+          mat(0x444444, { metalness: 0.5 })
+        );
+        blade.position.y = 0.82;
+        blade.rotation.y = (i * Math.PI) / 3;
+        g.add(blade);
+      }
+      addPart("mixer", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0.55, 0));
+    }
+
+    // Boğaz
+    {
+      const neck = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.14, 24),
+        mat(0x9aa3ad, { metalness: 0.2 })
+      );
+      addPart("neck", neck, new THREE.Vector3(0, 0.66, 0), new THREE.Vector3(0, 0.15, 0));
+    }
+
+    // PVC T
+    {
+      const g = new THREE.Group();
+      const pvc = mat(0xd8dce0, { roughness: 0.7 });
+      const run = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 24), pvc);
+      run.rotation.z = Math.PI / 2;
+      g.add(run);
+      const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.14, 24), pvc);
+      branch.position.y = 0.07;
+      g.add(branch);
+      const side = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.12, 24), pvc);
+      side.rotation.x = Math.PI / 2;
+      side.position.z = 0.08;
+      g.add(side);
+      addPart("tee", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(0, -0.05, 0.25));
+    }
+
+    // Hava nozulu
+    {
+      const g = new THREE.Group();
+      const brass = mat(0xb08d57, { metalness: 0.7, roughness: 0.35 });
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.2, 12), brass);
+      tube.rotation.x = Math.PI / 2;
+      tube.position.z = 0.12;
+      g.add(tube);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.03, 12), brass);
+      tip.rotation.x = -Math.PI / 2;
+      tip.position.z = 0.01;
+      g.add(tip);
+      addPart("nozzle", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(0, -0.05, 0.45));
+    }
+
+    // Hortum
+    {
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.11, 0.52, 0),
+        new THREE.Vector3(0.35, 0.48, 0.05),
+        new THREE.Vector3(0.55, 0.35, 0.1),
+        new THREE.Vector3(0.75, 0.22, 0.15),
+      ]);
+      const hose = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 40, 0.035, 16, false),
+        mat(0x2f5f9a, { roughness: 0.65 })
+      );
+      addPart("hose", hose, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.25, -0.15, 0.15));
+    }
+
+    // Doldurma ucu
+    {
+      const tip = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.028, 0.038, 0.1, 20),
+        mat(0x3a3a3a, { metalness: 0.3 })
+      );
+      tip.rotation.z = Math.PI / 2;
+      addPart("tip", tip, new THREE.Vector3(0.82, 0.22, 0.16), new THREE.Vector3(1.05, 0.05, 0.25));
+    }
+
+    // Regülatör + su tutucu
+    {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.1, 0.08),
+        mat(0x3d4a58, { metalness: 0.4 })
+      );
+      g.add(body);
+      const bowl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.03, 0.07, 16),
+        mat(0x7ec8e3, { roughness: 0.25, metalness: 0.1 })
+      );
+      bowl.position.y = -0.08;
+      g.add(bowl);
+      const gauge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.035, 0.035, 0.02, 20),
+        mat(0xe8e8e8, { metalness: 0.2 })
+      );
+      gauge.rotation.x = Math.PI / 2;
+      gauge.position.set(0, 0.02, 0.05);
+      g.add(gauge);
+      addPart("regulator", g, new THREE.Vector3(-0.55, 0.45, 0.15), new THREE.Vector3(-0.85, 0.2, 0.35));
+    }
+
+    // Hava hattı (ince)
+    {
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.49, 0.45, 0.15),
+        new THREE.Vector3(-0.35, 0.35, 0.2),
+        new THREE.Vector3(-0.2, 0.25, 0.25),
+        new THREE.Vector3(-0.05, 0.2, 0.2),
+        new THREE.Vector3(0, 0.45, 0.18),
+      ]);
+      const line = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 50, 0.008, 8, false),
+        mat(0x222222, { roughness: 0.8 })
+      );
+      addPart("airline", line, new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.2, -0.2, 0.35));
+    }
+
+    // Pedal
+    {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.12), mat(0x222222));
+      g.add(base);
+      const pad = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.02, 0.09), mat(0xb03030));
+      pad.position.set(0, 0.03, 0.01);
+      pad.rotation.x = -0.25;
+      g.add(pad);
+      addPart("pedal", g, new THREE.Vector3(-0.35, 0.025, 0.35), new THREE.Vector3(-0.6, 0.02, 0.55));
+    }
+
+    // Etiketler (sprite yerine basit HTML overlay güncellenir)
+
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const stepsEl = document.getElementById("steps");
+    const badge = document.getElementById("badge");
+
+    steps.forEach((s, i) => {
+      const btn = document.createElement("button");
+      btn.className = "step" + (i === 0 ? " active" : "");
+      btn.innerHTML = `<span class="n">${i}</span><span class="t">${s.title}</span><span class="d">${s.detail}</span>`;
+      btn.addEventListener("click", () => setStep(i));
+      stepsEl.appendChild(btn);
+    });
+
+    function setVisibility(visibleSet) {
+      Object.keys(parts).forEach((name) => {
+        parts[name].visible = visibleSet.includes(name);
+        const m = parts[name];
+        m.traverse((ch) => {
+          if (ch.isMesh && ch.material) {
+            const mats = Array.isArray(ch.material) ? ch.material : [ch.material];
+            mats.forEach((mm) => {
+              if (!mm._baseColor) mm._baseColor = mm.color.clone();
+              mm.emissive = mm.emissive || new THREE.Color(0x000000);
+            });
+          }
+        });
+      });
+    }
+
+    function highlight(names) {
+      Object.keys(parts).forEach((name) => {
+        const on = names.includes(name);
+        parts[name].traverse((ch) => {
+          if (ch.isMesh && ch.material && ch.material._baseColor) {
+            ch.material.emissive.setHex(on ? 0x223311 : 0x000000);
+            ch.material.emissiveIntensity = on ? 0.25 : 0;
+          }
+        });
+      });
+    }
+
+    function applyExplode() {
+      Object.keys(parts).forEach((name) => {
+        const target = explodeOn ? exploded[name] : home[name];
+        parts[name].userData.target = target.clone();
+      });
+    }
+
+    function setStep(i) {
+      stepIndex = i;
+      const s = steps[i];
+      [...stepsEl.children].forEach((el, idx) => el.classList.toggle("active", idx === i));
+      badge.innerHTML = `<b>Adım ${i}:</b> ${s.title}<br/><span style="color:#9aa8b8">${s.detail}</span>`;
+      setVisibility(s.parts);
+      // Son eklenen parçayı vurgula
+      const prev = i > 0 ? steps[i - 1].parts : [];
+      const added = s.parts.filter((p) => !prev.includes(p));
+      highlight(added.length ? added : s.parts);
+    }
+
+    document.getElementById("btnNext").onclick = () => setStep(Math.min(stepIndex + 1, steps.length - 1));
+    document.getElementById("btnPrev").onclick = () => setStep(Math.max(stepIndex - 1, 0));
+    document.getElementById("btnExplode").onclick = () => {
+      explodeOn = !explodeOn;
+      applyExplode();
+    };
+    document.getElementById("btnReset").onclick = () => {
+      camera.position.set(1.8, 1.4, 2.4);
+      controls.target.set(0, 0.55, 0);
+      controls.update();
+    };
+
+    setStep(0);
+    applyExplode();
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      Object.keys(parts).forEach((name) => {
+        const p = parts[name];
+        if (p.userData.target) {
+          p.position.lerp(p.userData.target, 1 - Math.pow(0.001, dt));
+        }
+      });
+      // karıştırıcı dönüşü
+      if (parts.mixer && parts.mixer.visible) {
+        parts.mixer.rotation.y += dt * 1.2;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
