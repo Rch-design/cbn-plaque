@@ -152,7 +152,7 @@
   <div id="app">
     <aside>
       <h1>Elyaf doldurma makinesi</h1>
-      <div class="sub">Yastık · 200 g/adet · 100 L / 10 bar kompresör · çalışma 2–3 bar</div>
+      <div class="sub">Yastık + bez bebek/oyuncak · tak-çıkar uç · 100 L / 10 bar · çalışma 2–3 bar</div>
 
       <div class="specs">
         <strong>Ölçüler:</strong><br />
@@ -160,7 +160,10 @@
         Boğaz / T: Ø 50 mm<br />
         Hortum: Ø 40 mm · 1,2 m<br />
         Hava nozulu: Ø 8 mm<br />
-        Doldurma ucu: Ø 35–40 mm
+        <strong>Tak-çıkar kaplin:</strong> Ø 40 PVC union + O-ring<br />
+        Uç A yastık: Ø 35–40 mm<br />
+        Uç B oyuncak: Ø 16–20 mm uzun konik<br />
+        Uç C bebek: Ø 10–14 mm ince uzun
       </div>
 
       <div class="controls">
@@ -170,6 +173,11 @@
       <div class="controls">
         <button class="ctrl secondary" id="btnExplode">Patlat / Birleştir</button>
         <button class="ctrl secondary" id="btnReset">Kamera sıfırla</button>
+      </div>
+      <div class="controls" id="tipSwap">
+        <button class="ctrl" id="btnTipPillow" title="Yastık ucu">Yastık Ø38</button>
+        <button class="ctrl secondary" id="btnTipToy" title="Oyuncak ucu">Oyuncak Ø18</button>
+        <button class="ctrl secondary" id="btnTipDoll" title="Bebek ucu">Bebek Ø12</button>
       </div>
 
       <div class="steps" id="steps"></div>
@@ -196,12 +204,15 @@
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+    const ALL = ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "hose", "coupling", "tipPillow", "tipToy", "tipDoll", "airline", "pedal", "regulator"];
+    const BASE = ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "coupling"];
+
     const steps = [
       {
         id: "all",
         title: "Genel görünüm",
-        detail: "Komple montaj. Sonra adım adım parçaları ekle.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "hose", "tip", "airline", "pedal", "regulator"],
+        detail: "Tak-çıkar uçlu komple sistem. Üstten uç değiştir.",
+        parts: ALL,
       },
       {
         id: "stand",
@@ -236,7 +247,7 @@
       {
         id: "nozzle",
         title: "Hava nozulunu yerleştir",
-        detail: "Ø 8 mm boru T yanından içeri, akış yönünde. Uç boğaz altında kalsın.",
+        detail: "Ø 50 tapa + Ø 8 mm boru, sızdırmaz. Uç boğaz altında.",
         parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle"],
       },
       {
@@ -253,17 +264,33 @@
       },
       {
         id: "hose",
-        title: "Hortum + doldurma ucu",
-        detail: "Ø 40 mm hortum 1,2 m + Ø 35–40 mm uç. Yastık ağzına geçir.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "tip"],
+        title: "Hortum",
+        detail: "Ø 40 mm hortum 1,2 m. Ucu sabit kaplin yuvasına yapışır.",
+        parts: [...BASE],
+      },
+      {
+        id: "coupling",
+        title: "Tak-çıkar kaplin",
+        detail: "Ø 40 PVC union (rakor). Dişi taraf hortumda sabit; uçlar erkek + O-ring.",
+        parts: [...BASE],
+        highlight: ["coupling"],
+      },
+      {
+        id: "tips",
+        title: "Üç değişir uç",
+        detail: "A yastık Ø38 · B oyuncak Ø18 · C bebek Ø12. Aynı kapline tak-çıkar.",
+        parts: ALL,
+        highlight: ["tipPillow", "tipToy", "tipDoll", "coupling"],
       },
       {
         id: "test",
         title: "Test ve kalibrasyon",
-        detail: "2 bar ile başla. İlk yastığı tart → 200 g için süreyi sabitle.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "tip"],
+        detail: "Yastıkta 200 g tart. İnce uçta basıncı 1,5–2,5 bar’a düşür (tıkanma/patlama olmasın).",
+        parts: [...BASE, "tipPillow"],
       },
     ];
+
+    let activeTip = "tipPillow";
 
     const canvas = document.getElementById("c");
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -426,7 +453,7 @@
         new THREE.Vector3(0.11, 0.52, 0),
         new THREE.Vector3(0.35, 0.48, 0.05),
         new THREE.Vector3(0.55, 0.35, 0.1),
-        new THREE.Vector3(0.75, 0.22, 0.15),
+        new THREE.Vector3(0.72, 0.24, 0.14),
       ]);
       const hose = new THREE.Mesh(
         new THREE.TubeGeometry(curve, 40, 0.035, 16, false),
@@ -435,14 +462,80 @@
       addPart("hose", hose, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.25, -0.15, 0.15));
     }
 
-    // Doldurma ucu
+    // Tak-çıkar kaplin (PVC union)
     {
+      const g = new THREE.Group();
+      const body = mat(0xc5ccd3, { roughness: 0.55, metalness: 0.15 });
+      const ring = mat(0xe8a04a, { roughness: 0.45, metalness: 0.2 });
+      const socket = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.07, 24), body);
+      socket.rotation.z = Math.PI / 2;
+      g.add(socket);
+      const nut = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.035, 8), ring);
+      nut.rotation.z = Math.PI / 2;
+      nut.position.x = 0.04;
+      g.add(nut);
+      const oring = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.005, 10, 24), mat(0x222222));
+      oring.rotation.y = Math.PI / 2;
+      oring.position.x = 0.055;
+      g.add(oring);
+      addPart("coupling", g, new THREE.Vector3(0.78, 0.23, 0.145), new THREE.Vector3(0.95, 0.05, 0.35));
+    }
+
+    // Uç A — yastık Ø38
+    {
+      const g = new THREE.Group();
       const tip = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.028, 0.038, 0.1, 20),
+        new THREE.CylinderGeometry(0.03, 0.04, 0.11, 20),
         mat(0x3a3a3a, { metalness: 0.3 })
       );
       tip.rotation.z = Math.PI / 2;
-      addPart("tip", tip, new THREE.Vector3(0.82, 0.22, 0.16), new THREE.Vector3(1.05, 0.05, 0.25));
+      tip.position.x = 0.06;
+      g.add(tip);
+      const male = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.036, 0.036, 0.04, 20),
+        mat(0x5a6570, { metalness: 0.25 })
+      );
+      male.rotation.z = Math.PI / 2;
+      g.add(male);
+      addPart("tipPillow", g, new THREE.Vector3(0.88, 0.23, 0.145), new THREE.Vector3(1.15, 0.35, 0.2));
+    }
+
+    // Uç B — oyuncak Ø18 uzun
+    {
+      const g = new THREE.Group();
+      const male = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.036, 0.036, 0.04, 20),
+        mat(0x5a6570, { metalness: 0.25 })
+      );
+      male.rotation.z = Math.PI / 2;
+      g.add(male);
+      const cone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.032, 0.16, 20),
+        mat(0x2f6f4e, { metalness: 0.2 })
+      );
+      cone.rotation.z = Math.PI / 2;
+      cone.position.x = 0.09;
+      g.add(cone);
+      addPart("tipToy", g, new THREE.Vector3(0.88, 0.23, 0.145), new THREE.Vector3(1.2, 0.05, 0.05));
+    }
+
+    // Uç C — bez bebek Ø12 ince
+    {
+      const g = new THREE.Group();
+      const male = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.036, 0.036, 0.04, 20),
+        mat(0x5a6570, { metalness: 0.25 })
+      );
+      male.rotation.z = Math.PI / 2;
+      g.add(male);
+      const slim = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.028, 0.2, 20),
+        mat(0x7a3b6a, { metalness: 0.2 })
+      );
+      slim.rotation.z = Math.PI / 2;
+      slim.position.x = 0.11;
+      g.add(slim);
+      addPart("tipDoll", g, new THREE.Vector3(0.88, 0.23, 0.145), new THREE.Vector3(1.25, -0.2, 0.25));
     }
 
     // Regülatör + su tutucu
@@ -523,8 +616,7 @@
     function setVisibility(visibleSet) {
       Object.keys(parts).forEach((name) => {
         parts[name].visible = visibleSet.includes(name);
-        const m = parts[name];
-        m.traverse((ch) => {
+        parts[name].traverse((ch) => {
           if (ch.isMesh && ch.material) {
             const mats = Array.isArray(ch.material) ? ch.material : [ch.material];
             mats.forEach((mm) => {
@@ -555,16 +647,71 @@
       });
     }
 
+    function tipButtons(active) {
+      const map = {
+        tipPillow: "btnTipPillow",
+        tipToy: "btnTipToy",
+        tipDoll: "btnTipDoll",
+      };
+      Object.entries(map).forEach(([tip, id]) => {
+        const el = document.getElementById(id);
+        if (tip === active) el.classList.remove("secondary");
+        else el.classList.add("secondary");
+      });
+    }
+
+    function partsForStep(s) {
+      const tips = ["tipPillow", "tipToy", "tipDoll"];
+      if (s.id === "tips" || (s.id === "all" && explodeOn)) return [...new Set(s.parts)];
+      if (s.id === "all") {
+        return s.parts.filter((p) => !tips.includes(p) || p === activeTip);
+      }
+      if (s.id === "hose" || s.id === "coupling") {
+        return [...BASE];
+      }
+      if (s.id === "test") {
+        return [...BASE, activeTip];
+      }
+      const hasTipSlot = s.parts.some((p) => tips.includes(p));
+      if (hasTipSlot) {
+        return [...new Set(s.parts.filter((p) => !tips.includes(p)).concat([activeTip]))];
+      }
+      return s.parts;
+    }
+
     function setStep(i) {
       stepIndex = i;
       const s = steps[i];
       [...stepsEl.children].forEach((el, idx) => el.classList.toggle("active", idx === i));
       badge.innerHTML = `<b>Adım ${i}:</b> ${s.title}<br/><span style="color:#9aa8b8">${s.detail}</span>`;
-      setVisibility(s.parts);
-      // Son eklenen parçayı vurgula
-      const prev = i > 0 ? steps[i - 1].parts : [];
-      const added = s.parts.filter((p) => !prev.includes(p));
-      highlight(added.length ? added : s.parts);
+      setVisibility(partsForStep(s));
+      if (s.highlight) {
+        highlight(s.highlight);
+      } else {
+        const prev = i > 0 ? steps[i - 1].parts : [];
+        const added = s.parts.filter((p) => !prev.includes(p));
+        highlight(added.length ? added : s.parts);
+      }
+      tipButtons(activeTip);
+    }
+
+    function setTip(tipName) {
+      activeTip = tipName;
+      tipButtons(activeTip);
+      if (steps[stepIndex].id === "tips") {
+        explodeOn = true;
+        applyExplode();
+        setStep(stepIndex);
+        highlight([tipName, "coupling"]);
+      } else {
+        explodeOn = false;
+        applyExplode();
+        setStep(stepIndex);
+        highlight([tipName, "coupling"]);
+      }
+      const label =
+        tipName === "tipPillow" ? "Yastık Ø38" : tipName === "tipToy" ? "Oyuncak Ø18" : "Bebek Ø12";
+      badge.innerHTML = `<b>Uç değişti:</b> ${label} — kaplin somununu gevşet, ucu çek, yenisini tak, sık.<br/><span style="color:#9aa8b8">İnce uçlarda basıncı 1,5–2,5 bar yap.</span>`;
     }
 
     document.getElementById("btnNext").onclick = () => setStep(Math.min(stepIndex + 1, steps.length - 1));
@@ -572,12 +719,16 @@
     document.getElementById("btnExplode").onclick = () => {
       explodeOn = !explodeOn;
       applyExplode();
+      setStep(stepIndex);
     };
     document.getElementById("btnReset").onclick = () => {
       camera.position.set(1.8, 1.4, 2.4);
       controls.target.set(0, 0.55, 0);
       controls.update();
     };
+    document.getElementById("btnTipPillow").onclick = () => setTip("tipPillow");
+    document.getElementById("btnTipToy").onclick = () => setTip("tipToy");
+    document.getElementById("btnTipDoll").onclick = () => setTip("tipDoll");
 
     setStep(0);
     applyExplode();
