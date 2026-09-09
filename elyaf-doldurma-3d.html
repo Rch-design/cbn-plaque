@@ -157,9 +157,10 @@
       <div class="specs">
         <strong>Ölçüler:</strong><br />
         Hazne ~30 L konik<br />
-        Boğaz / T: Ø 50 mm<br />
+        <strong>Venturi gövde:</strong> Ø 40 mm 4 yollu PVC çapraz<br />
+        Üst: elyaf Ø 40 · Alt: temizlik kapağı<br />
+        Yan: hava 8 mm kör tapa · Yan: çıkış Ø 40<br />
         Hortum: Ø 40 mm · 1,2 m<br />
-        Hava nozulu: Ø 8 mm<br />
         <strong>Tak-çıkar kaplin:</strong> Ø 40 PVC union + O-ring<br />
         Uç A yastık: Ø 35–40 mm<br />
         Uç B oyuncak: Ø 16–20 mm uzun konik<br />
@@ -204,14 +205,14 @@
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-    const ALL = ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "hose", "coupling", "tipPillow", "tipToy", "tipDoll", "airline", "pedal", "regulator"];
-    const BASE = ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal", "hose", "coupling"];
+    const ALL = ["stand", "hopper", "mixer", "neck", "cross", "cleanout", "nozzle", "hose", "coupling", "tipPillow", "tipToy", "tipDoll", "airline", "pedal", "regulator"];
+    const BASE = ["stand", "hopper", "mixer", "neck", "cross", "cleanout", "nozzle", "regulator", "airline", "pedal", "hose", "coupling"];
 
     const steps = [
       {
         id: "all",
         title: "Genel görünüm",
-        detail: "Tak-çıkar uçlu komple sistem. Üstten uç değiştir.",
+        detail: "4 yollu venturi + tak-çıkar uç. Tıkanınca sadece alt kapak açılır.",
         parts: ALL,
       },
       {
@@ -223,7 +224,7 @@
       {
         id: "hopper",
         title: "Konik hazneyi bağla",
-        detail: "30 L konik bidon/sac. Alt çıkış Ø 50 mm olacak şekilde del.",
+        detail: "30 L konik bidon/sac. Alt çıkış Ø 40 mm.",
         parts: ["stand", "hopper"],
       },
       {
@@ -235,37 +236,46 @@
       {
         id: "neck",
         title: "Besleme boğazı",
-        detail: "Hazne altından Ø 50 mm kısa boru (10–15 cm).",
+        detail: "Hazneden Ø 40 mm kısa boru → çaprazın üst koluna.",
         parts: ["stand", "hopper", "mixer", "neck"],
       },
       {
-        id: "tee",
-        title: "PVC T (venturi gövde)",
-        detail: "Ø 50 mm T. Üst = boğaz, yan = hava, düz çıkış = hortum.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee"],
+        id: "cross",
+        title: "4 yollu PVC çapraz",
+        detail: "T değil çapraz (+). Üst elyaf, alt temizlik, sol hava, sağ çıkış.",
+        parts: ["stand", "hopper", "mixer", "neck", "cross"],
+        highlight: ["cross"],
+      },
+      {
+        id: "cleanout",
+        title: "Alt temizlik kapağı",
+        detail: "Dişli kör tapa. Tıkanınca giriş/çıkışa dokunmadan alttan aç, çubukla temizle.",
+        parts: ["stand", "hopper", "mixer", "neck", "cross", "cleanout"],
+        highlight: ["cleanout"],
       },
       {
         id: "nozzle",
-        title: "Hava nozulunu yerleştir",
-        detail: "Ø 50 tapa + Ø 8 mm boru, sızdırmaz. Uç boğaz altında.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle"],
+        title: "Hava: kör tapa + 8 mm",
+        detail: "Sol kola kör tapa, ortasına Ø 8 mm delik. Nozul çıkışa doğru baksın.",
+        parts: ["stand", "hopper", "mixer", "neck", "cross", "cleanout", "nozzle"],
+        highlight: ["nozzle"],
       },
       {
         id: "air",
         title: "Hava hattı + regülatör",
-        detail: "Kompresör → su tutucu → regülatör 2–3 bar → iğneli vana → nozul.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline"],
+        detail: "Kompresör → su tutucu → regülatör 2–3 bar → pedal → 8 mm hortum → nozul.",
+        parts: ["stand", "hopper", "mixer", "neck", "cross", "cleanout", "nozzle", "regulator", "airline"],
       },
       {
         id: "pedal",
         title: "Ayak pedalını bağla",
         detail: "Pedal hava vanası: basınca üfler, bırakınca keser.",
-        parts: ["stand", "hopper", "mixer", "neck", "tee", "nozzle", "regulator", "airline", "pedal"],
+        parts: ["stand", "hopper", "mixer", "neck", "cross", "cleanout", "nozzle", "regulator", "airline", "pedal"],
       },
       {
         id: "hose",
         title: "Hortum",
-        detail: "Ø 40 mm hortum 1,2 m. Ucu sabit kaplin yuvasına yapışır.",
+        detail: "Sağ koldan Ø 40 mm hortum 1,2 m. Ucu sabit kaplin yuvasına yapışır.",
         parts: [...BASE],
       },
       {
@@ -284,9 +294,10 @@
       },
       {
         id: "test",
-        title: "Test ve kalibrasyon",
-        detail: "Yastıkta 200 g tart. İnce uçta basıncı 1,5–2,5 bar’a düşür (tıkanma/patlama olmasın).",
+        title: "Test / tıkanma müdahalesi",
+        detail: "Tıkanırsa: pedalı bırak → alt kapağı aç → çubukla temizle → kapat. Hazne/hortumu sökme.",
         parts: [...BASE, "tipPillow"],
+        highlight: ["cleanout"],
       },
     ];
 
@@ -406,51 +417,75 @@
       addPart("mixer", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0.55, 0));
     }
 
-    // Boğaz
+    // Boğaz Ø40
     {
       const neck = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, 0.14, 24),
+        new THREE.CylinderGeometry(0.04, 0.04, 0.14, 24),
         mat(0x9aa3ad, { metalness: 0.2 })
       );
       addPart("neck", neck, new THREE.Vector3(0, 0.66, 0), new THREE.Vector3(0, 0.15, 0));
     }
 
-    // PVC T
+    // 4 yollu PVC çapraz (venturi gövde)
     {
       const g = new THREE.Group();
       const pvc = mat(0xd8dce0, { roughness: 0.7 });
-      const run = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 24), pvc);
+      // yatay hat: sol hava → sağ çıkış
+      const run = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.26, 24), pvc);
       run.rotation.z = Math.PI / 2;
       g.add(run);
-      const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.14, 24), pvc);
-      branch.position.y = 0.07;
-      g.add(branch);
-      const side = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.12, 24), pvc);
-      side.rotation.x = Math.PI / 2;
-      side.position.z = 0.08;
-      g.add(side);
-      addPart("tee", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(0, -0.05, 0.25));
+      // dikey hat: üst elyaf → alt temizlik
+      const vertical = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.22, 24), pvc);
+      g.add(vertical);
+      // gövde şişkinliği
+      const hub = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 12), pvc);
+      g.add(hub);
+      addPart("cross", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(0, -0.02, 0.2));
     }
 
-    // Hava nozulu
+    // Alt temizlik kapağı (dişli kör tapa)
+    {
+      const g = new THREE.Group();
+      const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.048, 0.048, 0.035, 8),
+        mat(0xc45c26, { roughness: 0.5, metalness: 0.15 })
+      );
+      g.add(cap);
+      const knob = new THREE.Mesh(
+        new THREE.BoxGeometry(0.055, 0.012, 0.012),
+        mat(0x8a3a12)
+      );
+      knob.position.y = -0.02;
+      g.add(knob);
+      addPart("cleanout", g, new THREE.Vector3(0, 0.38, 0), new THREE.Vector3(0, -0.25, 0.15));
+    }
+
+    // Hava nozulu — sol koldan, çıkışa doğru (sağa)
     {
       const g = new THREE.Group();
       const brass = mat(0xb08d57, { metalness: 0.7, roughness: 0.35 });
-      const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.2, 12), brass);
-      tube.rotation.x = Math.PI / 2;
-      tube.position.z = 0.12;
+      const blind = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.048, 0.048, 0.03, 20),
+        mat(0xb0b6bc, { roughness: 0.65 })
+      );
+      blind.rotation.z = Math.PI / 2;
+      blind.position.x = -0.14;
+      g.add(blind);
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.18, 12), brass);
+      tube.rotation.z = Math.PI / 2;
+      tube.position.x = -0.04;
       g.add(tube);
-      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.03, 12), brass);
-      tip.rotation.x = -Math.PI / 2;
-      tip.position.z = 0.01;
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.028, 12), brass);
+      tip.rotation.z = -Math.PI / 2;
+      tip.position.x = 0.06;
       g.add(tip);
-      addPart("nozzle", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(0, -0.05, 0.45));
+      addPart("nozzle", g, new THREE.Vector3(0, 0.52, 0), new THREE.Vector3(-0.35, 0.05, 0.25));
     }
 
-    // Hortum
+    // Hortum — sağ çıkıştan
     {
       const curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.11, 0.52, 0),
+        new THREE.Vector3(0.13, 0.52, 0),
         new THREE.Vector3(0.35, 0.48, 0.05),
         new THREE.Vector3(0.55, 0.35, 0.1),
         new THREE.Vector3(0.72, 0.24, 0.14),
@@ -562,20 +597,20 @@
       addPart("regulator", g, new THREE.Vector3(-0.55, 0.45, 0.15), new THREE.Vector3(-0.85, 0.2, 0.35));
     }
 
-    // Hava hattı (ince)
+    // Hava hattı (ince) → sol kör tapa / 8 mm
     {
       const curve = new THREE.CatmullRomCurve3([
         new THREE.Vector3(-0.49, 0.45, 0.15),
-        new THREE.Vector3(-0.35, 0.35, 0.2),
-        new THREE.Vector3(-0.2, 0.25, 0.25),
-        new THREE.Vector3(-0.05, 0.2, 0.2),
-        new THREE.Vector3(0, 0.45, 0.18),
+        new THREE.Vector3(-0.4, 0.4, 0.1),
+        new THREE.Vector3(-0.3, 0.48, 0.05),
+        new THREE.Vector3(-0.2, 0.52, 0.02),
+        new THREE.Vector3(-0.14, 0.52, 0),
       ]);
       const line = new THREE.Mesh(
         new THREE.TubeGeometry(curve, 50, 0.008, 8, false),
         mat(0x222222, { roughness: 0.8 })
       );
-      addPart("airline", line, new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.2, -0.2, 0.35));
+      addPart("airline", line, new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.25, -0.15, 0.3));
     }
 
     // Pedal
