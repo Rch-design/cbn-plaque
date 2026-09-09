@@ -152,19 +152,16 @@
   <div id="app">
     <aside>
       <h1>Elyaf doldurma makinesi</h1>
-      <div class="sub">Yastık + bez bebek/oyuncak · tak-çıkar uç · 100 L / 10 bar · çalışma 2–3 bar</div>
+      <div class="sub">Konik hazne + alt pervane · 4 yollu venturi · tak-çıkar uç · 2–3 bar</div>
 
       <div class="specs">
-        <strong>Ölçüler:</strong><br />
-        Hazne ~30 L konik<br />
-        <strong>Venturi gövde:</strong> Ø 40 mm 4 yollu PVC çapraz<br />
-        Üst: elyaf Ø 40 · Alt: temizlik kapağı<br />
-        Yan: hava 8 mm kör tapa · Yan: çıkış Ø 40<br />
-        Hortum: Ø 40 mm · 1,2 m<br />
-        <strong>Tak-çıkar kaplin:</strong> Ø 40 PVC union + O-ring<br />
-        Uç A yastık: Ø 35–40 mm<br />
-        Uç B oyuncak: Ø 16–20 mm uzun konik<br />
-        Uç C bebek: Ø 10–14 mm ince uzun
+        <strong>Hazne:</strong> üst silindir + dik koni (duvar ~55–60°)<br />
+        Hacim ~25–35 L · alt çıkış Ø 40 mm<br />
+        <strong>Pervane:</strong> üstten mil, kanatlar KONİ ALTINDA<br />
+        Boğazın 3–6 cm üstünde · çıkışı tıkamaz<br />
+        Devir 30–60 rpm (yavaş)<br />
+        <strong>Venturi:</strong> Ø 40 4 yollu + alt temizlik<br />
+        Hortum Ø 40 · tak-çıkar uçlar A/B/C
       </div>
 
       <div class="controls">
@@ -223,21 +220,24 @@
       },
       {
         id: "hopper",
-        title: "Konik hazneyi bağla",
-        detail: "30 L konik bidon/sac. Alt çıkış Ø 40 mm.",
+        title: "Konik (huni) hazne",
+        detail: "Üst silindirik + alt dik koni. Düz bidon değil — elyaf duvarda asılı kalmasın.",
         parts: ["stand", "hopper"],
+        highlight: ["hopper"],
       },
       {
         id: "mixer",
-        title: "Karıştırıcıyı tak",
-        detail: "Düşük devir (30–60 rpm) kanatlı mil. Elyaf köprülemesin.",
+        title: "Pervane konumu",
+        detail: "Motor üstte. Kanatlar koninin ALT bölgesinde, boğazın 3–6 cm üstünde. Çıkışı kapatmasın.",
         parts: ["stand", "hopper", "mixer"],
+        highlight: ["mixer"],
       },
       {
         id: "neck",
-        title: "Besleme boğazı",
-        detail: "Hazneden Ø 40 mm kısa boru → çaprazın üst koluna.",
+        title: "Besleme boğazı Ø40",
+        detail: "Hazne altından kısa Ø 40 boru → çaprazın üst koluna. Pervane buraya girmesin.",
         parts: ["stand", "hopper", "mixer", "neck"],
+        highlight: ["neck"],
       },
       {
         id: "cross",
@@ -371,48 +371,83 @@
       addPart("stand", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     }
 
-    // Hazne (konik)
+    // Hazne: üst silindir + dik koni (huni)
     {
       const g = new THREE.Group();
-      const body = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.28, 0.12, 0.45, 32),
-        mat(0x8a93a0, { metalness: 0.25, roughness: 0.4 })
+      const metal = mat(0x8a93a0, { metalness: 0.25, roughness: 0.4 });
+      // üst silindirik bölüm
+      const cyl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.26, 0.22, 32),
+        metal
       );
-      body.position.y = 0.95;
-      g.add(body);
+      cyl.position.y = 1.12;
+      g.add(cyl);
+      // dik koni (huni) — daralma aşağıda
+      const cone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.055, 0.38, 32),
+        metal
+      );
+      cone.position.y = 0.82;
+      g.add(cone);
       const rim = new THREE.Mesh(
-        new THREE.TorusGeometry(0.28, 0.012, 10, 40),
+        new THREE.TorusGeometry(0.26, 0.012, 10, 40),
         mat(0x5c6570, { metalness: 0.4 })
       );
       rim.rotation.x = Math.PI / 2;
-      rim.position.y = 1.175;
+      rim.position.y = 1.23;
       g.add(rim);
+      // iç görünüm için hafif şeffaf kesit çizgisi (kenar halkası koni ortası)
+      const band = new THREE.Mesh(
+        new THREE.TorusGeometry(0.2, 0.006, 8, 32),
+        mat(0xc45c26, { metalness: 0.2 })
+      );
+      band.rotation.x = Math.PI / 2;
+      band.position.y = 0.92;
+      g.add(band);
       addPart("hopper", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0.35, 0));
     }
 
-    // Karıştırıcı
+    // Karıştırıcı — kanatlar KONİ ALTINDA (boğaz üstü)
     {
       const g = new THREE.Group();
       const shaft = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.012, 0.012, 0.42, 12),
+        new THREE.CylinderGeometry(0.01, 0.01, 0.55, 12),
         mat(0x333333, { metalness: 0.6, roughness: 0.35 })
       );
       shaft.position.y = 0.95;
       g.add(shaft);
       const motor = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.06, 0.06, 0.08, 20),
+        new THREE.CylinderGeometry(0.055, 0.055, 0.08, 20),
         mat(0x222222, { metalness: 0.5 })
       );
-      motor.position.y = 1.22;
+      motor.position.y = 1.28;
       g.add(motor);
+      const gear = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.07, 0.07, 0.04, 20),
+        mat(0x444444, { metalness: 0.4 })
+      );
+      gear.position.y = 1.22;
+      g.add(gear);
+      // ana kanatlar: koni alt bölgesi y≈0.72 (boğaz ~0.66 üstü)
       for (let i = 0; i < 3; i++) {
         const blade = new THREE.Mesh(
-          new THREE.BoxGeometry(0.18, 0.01, 0.04),
-          mat(0x444444, { metalness: 0.5 })
+          new THREE.BoxGeometry(0.16, 0.012, 0.035),
+          mat(0xc45c26, { metalness: 0.35 })
         );
-        blade.position.y = 0.82;
-        blade.rotation.y = (i * Math.PI) / 3;
+        blade.position.y = 0.72;
+        blade.rotation.y = (i * Math.PI * 2) / 3;
+        blade.rotation.z = 0.15;
         g.add(blade);
+      }
+      // üst yardımcı çırpıcı (hafif, köprü kırmak için)
+      for (let i = 0; i < 2; i++) {
+        const upper = new THREE.Mesh(
+          new THREE.BoxGeometry(0.14, 0.008, 0.025),
+          mat(0x666666, { metalness: 0.4 })
+        );
+        upper.position.y = 0.95;
+        upper.rotation.y = (i * Math.PI) / 2 + 0.4;
+        g.add(upper);
       }
       addPart("mixer", g, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0.55, 0));
     }
